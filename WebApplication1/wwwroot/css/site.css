@@ -1,0 +1,214 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+for details on configuring this project to bundle and minify static web assets. */
+body, html {
+    margin: 0;
+    padding: 0;
+    /* font-family: Segoe UI; */
+    font-family: arial;
+    font-weight: 400;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    position: absolute;
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    overflow: scroll;
+    /* box-shadow: inset 0px 0px 76px rgba(0,0,0,0.1); */
+}
+
+#loader {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    font-size: 40px;
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2;
+    top: 0;
+    left: 0;
+    opacity: 1;
+}
+
+#loader-gif {
+    padding: 5px;
+    border-radius: 21px;
+    background: white;
+    opacity: 1;
+    transition: opacity 300ms linear 0s;
+    position: absolute;
+    left: 48%;
+    top: 45%;
+    z-index: 50;
+}
+
+#mediaWrapper {
+    max-width: 700px;
+    height: auto;
+    margin: 0 auto;
+    position: relative;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: .3em;
+    display: none;
+}
+
+#controlsWrapper {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+}
+
+#head-text {
+    display: block;
+    width: 100%;
+    margin-bottom: 17%;
+    font-weight: 100;
+    font-size: 2em;
+    font-weight: 400;
+}
+
+#vehicleWrapper {
+    margin: 0 auto;
+    position: relative;
+    align-items: center;
+    height: auto;
+    width: 100%;
+    background-color: white;
+}
+
+#captureButton {
+    border-radius: 30px;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+}
+
+video {
+    width: 100%;
+}
+
+#vehicleImage {
+    width: 100%;
+    display: block;
+    top: 50%;
+    left: 50%;
+}
+
+#uploadLabel, #cameraLabel {
+    width: 70%;
+    max-width: 300px;
+    line-height: 80px;
+    display: none;
+    cursor: pointer;
+    border: 1px solid #ea1921;
+    background: #ea1921;
+    color: white;
+    padding: 16px 16px;
+    margin-bottom: 54px;
+    font-size: 3.5em;
+    border-radius: 9px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    align-self: center;
+    vertical-align: middle;
+}
+
+#uploadInput, #cameraInput {
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+#confirm {
+    display: none;
+    align-items: center;
+    flex-direction: column;
+    font-size: 1.6em;
+}
+
+    #confirm span {
+        margin-top: 25px;
+        padding: 0px 20px;
+    }
+
+#confirmButton {
+    display: inline-flex;
+    text-align: center;
+    width: auto;
+    height: auto;
+    margin: 28px 40px;
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    background-color: #588a27;
+    font-size: 1em;
+    text-transform: uppercase;
+    padding: 24px;
+    color: white;
+    vertical-align: middle;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+#retryButton {
+    display: inline-flex;
+    height: auto;
+    margin: 28px 40px;
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    background-color: #ea1921;
+    font-size: 1em;
+    text-transform: uppercase;
+    padding: 24px;
+    color: white;
+    vertical-align: middle;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+#mediaWrapper .marker {
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    opacity: 1;
+    background: rgba(255, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-sizing: border-box;
+    position: absolute;
+    border-radius: 50%;
+}
+
+#ar-modal {
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    display: flex;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 123;
+    text-align: center;
+    justify-content: center;
+    align-content: center;
+}
+
+#ar-modal-text {
+    display: inline-block;
+    vertical-align: middle;
+    color: #ffffff;
+    text-align: center;
+    height: auto;
+    top: 50%;
+    width: auto;
+    position: relative;
+    margin: 0 auto;
+}
