@@ -4,23 +4,32 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Models;
+using ARCaptureAPI.Models;
 
-namespace WebApplication1.Controllers
+namespace ARCaptureAPI.Controllers
 {
     public class HomeController : Controller
     {
-        public static Dictionary<string, string> SessionCache = new Dictionary<string, string>();
-        public static SessionModel s = new SessionModel();
 
-        public IActionResult Index(SessionModel s, int b)
+        public IActionResult CaptureUI()
         {
-            return View();
+           //sessionModel.ID = new Guid();
+            return View();  
         }
 
-        public IActionResult Error()
+        public void UpdateSession(String dataURL)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            //sessionModel.userImage = dataURL;
+            //sessionModel.Timestamp = new DateTime();
+        }
+
+        public JsonResult ReturnUserImage(String userImageString)
+        {
+            UpdateSession(userImageString);
+            return Json(new
+            {
+                //sessionModel.userImage
+            });
         }
     }
 }

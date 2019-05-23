@@ -3,14 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebApplication1.Models
+namespace ARCaptureAPI.Models
 {
-    public class SessionModel
+    public enum SessionState
     {
-        public String State;
-        public DateTime Timestamp = new DateTime();
-        public Guid Id;
+        New = 1,
+        WaitingForUpload = 2,
+        ImageReady = 3,
+        Ended = 4
     }
 
-
+    public class SessionModel
+    {
+        public SessionState State;
+        public DateTime Timestamp = new DateTime();
+        public Guid ID;
+        public String userImage;
+        //public static Dictionary<string, string> SessionCache = new Dictionary<string, string>();
+    }
 }

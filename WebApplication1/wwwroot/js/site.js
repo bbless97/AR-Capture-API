@@ -1,7 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-// Write your JavaScript code.
-$(document).ready(function () {
+﻿$(document).ready(function () {
     var app = document.getElementById('app');
     var ios = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
     var instaCaptureSupport = 'mediaDevices' in navigator;
@@ -17,6 +14,7 @@ $(document).ready(function () {
     var confirmWrapper = document.getElementById('confirm');
     var retryButton = document.getElementById('retryButton');
     var confirmButton = document.getElementById('confirmButton');
+    var imageDataURL;
 
     if (promptCaptureSupport != false) {
         $(cameraLabel).css('display', 'inline-block');
@@ -99,7 +97,7 @@ $(document).ready(function () {
             }
         }
         // if(file.size > 1000000){
-        //     compress(file, vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight);
+        compress(file, vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight);
         // } else {
         upload(file);
         // getOrientation(image);
@@ -125,8 +123,17 @@ $(document).ready(function () {
         }
     }
 
-    function confirm() {
-        confirmWrapper.style.display = 'none';
+    function confirm(imgURL) {
+        $.ajax({
+            url: 'https://localhost:44304/ReturnUserImage',
+            data: imgURL,
+            success: '',
+            dataType: 'jsonp',
+            type: 'GET',
+            success: function (data) {
+                window.location = data;
+            }
+        });
     }
 
     function compress(f, w, h) {
@@ -145,13 +152,14 @@ $(document).ready(function () {
                 elem.height = height;
                 var ctx = elem.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
+                imageDataURL = elem.toDataURL('image/png')
 
                 ctx.canvas.toBlob(function (blob) {
                     newFile = new File([blob], 'image.jpg', {
                         type: 'image/jpeg',
                         lastModified: Date.now()
                     });
-                    upload(newFile);
+                    // upload(newFile);
 
                 }, 'image/jpeg', 1);
             };
@@ -284,7 +292,7 @@ $(document).ready(function () {
     }
 
     confirmButton.addEventListener('click', function () {
-        confirm();
+        confirm(imageDataURL);
     });
 
     retryButton.addEventListener('click', function () {
