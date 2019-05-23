@@ -56,7 +56,7 @@ namespace ARCaptureAPI
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=CaptureUI}");
+                    template: "{controller=Capture}/{action=CaptureUI}");
             });
         }
     }

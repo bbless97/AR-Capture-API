@@ -1,7 +1,8 @@
-﻿$(document).ready(function () {
-    var app = document.getElementById('app');
+﻿var startSession = $.get("https://localhost:44304/Session/Start", function () { });
+startSession.done(function (data) {
+    $('#controlsWrapper').css('display', 'flex');
+    var appSession = data;
     var ios = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
-    var instaCaptureSupport = 'mediaDevices' in navigator;
     var testInput = document.createElement('input');
     var promptCaptureSupport = testInput.capture != undefined;
     var mediaWrapper = document.getElementById('mediaWrapper');
@@ -14,7 +15,7 @@
     var confirmWrapper = document.getElementById('confirm');
     var retryButton = document.getElementById('retryButton');
     var confirmButton = document.getElementById('confirmButton');
-    var imageDataURL;
+    var imageURL;
 
     if (promptCaptureSupport != false) {
         $(cameraLabel).css('display', 'inline-block');
@@ -22,6 +23,64 @@
     } else {
         $(uploadLabel).css('display', 'inline-block');
         $(cameraLabel).hide();
+    }
+
+    function sessionWaiting() {
+        $.get("https://localhost:44304/Session/ScanStarted", { id: appSession.id } )
+            .done(function (data) {
+                return;
+            });
+    }
+
+    function sessionEnd() {
+        $.get("https://localhost:44304/Session/End", { id: appSession.id });
+    }
+
+    function sessionUploadImage() {
+        $.post("https://localhost:44304/Session/UploadImage", { id: appSession.id, imageData: imageURL })
+            .done(function (data) {
+                if (data == true) {
+                    showModal("Image has been uploaded to RideStyler.");
+                    retry();
+                    sessionEnd();
+                } else {
+                    showModal("There was a problem uploading your image. Please try again with a different image.");
+                    retry();
+                }
+            });
+    }
+
+    function upload(file) {
+        var formData = new FormData();
+        formData.append('imageData', file, 'rssImageUpload');
+        formData.append('Mode', 'BestPair');
+        formData.append('IncludeStatistics', 'true');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api-alpha.ridestyler.net/Imaging/ExtractWheelInformation');
+
+        xhr.upload.addEventListener("progress", function (evt) {
+            $('#loader').css('display', 'block');
+        }, false);
+
+        xhr.addEventListener("progress", function () {
+            $('#loader').css('display', 'block');
+        }, false);
+
+        xhr.onload = function () {
+            var response = JSON.parse(xhr.response);
+            if (response.Success === false) {
+                showModal("Error: Image is not valid. Please try again.");
+                $('#loader').css('display', 'none');
+                retry();
+            }
+
+            sessionWaiting();
+            showVehicleViewport(response.Result);
+            $('#loader').hide();
+        }
+
+        xhr.send(formData);
     }
 
     function getOrientation(image) {
@@ -32,6 +91,7 @@
                     mediaWrapper.style.cssText = '-webkit-transform: rotate(0deg);'
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
+                    mediaWrapper.style.display = 'block';
                     controlsWrapper.style.position = 'relative';
                     controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
                 } else {
@@ -39,35 +99,70 @@
                     mediaWrapper.style.marginBottom = '18%';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '100%';
+                    mediaWrapper.style.display = 'block';
                 }
-                mediaWrapper.style.backgroundColor = '#a2a2a2';
             } else if (tags.Orientation == 8) {
                 if (ios) {
                     mediaWrapper.style.cssText = '-webkit-transform: rotate(0deg);';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
                     controlsWrapper.style.position = 'relative';
+                    mediaWrapper.style.display = 'block';
                     controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
                 } else {
                     mediaWrapper.style.cssText = 'transform: rotate(-90deg) translate(12.3%);';
                     mediaWrapper.style.marginBottom = '18%';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '100%';
+                    mediaWrapper.style.display = 'block';
                 }
-                mediaWrapper.style.backgroundColor = '#a2a2a2';
             } else if (tags.Orientation == 3) {
                 if (ios) {
                     mediaWrapper.style.cssText = '-webkit-transform: rotate(0deg);';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
+                    mediaWrapper.style.display = 'block';
                 } else {
                     mediaWrapper.style.cssText = 'transform: rotate(180deg) translate(0%);';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
+                    mediaWrapper.style.display = 'block';
                 }
-                mediaWrapper.style.backgroundColor = '#a2a2a2';
             }
+            mediaWrapper.style.backgroundColor = '#a2a2a2';
+            mediaWrapper.style.display = 'block';
         });
+    }
+
+    function compress(f, w, h) {
+
+        var width = w;
+        var height = h;
+        var reader = new FileReader();
+        var newFile;
+        reader.readAsDataURL(f);
+        reader.onload = function (event) {
+            var img = new Image();
+            img.src = event.target.result;
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                imageURL = canvas.toDataURL('image/jpeg');
+
+                ctx.canvas.toBlob(function (blob) {
+                    newFile = new File([blob], 'image.jpg', {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+
+                    upload(newFile);
+
+                }, 'image/jpeg', 1);
+            };
+        };
     }
 
     function convertToImage(fileInput) {
@@ -77,8 +172,7 @@
         image.src = URL.createObjectURL(file);
         image.id = 'vehicleImage';
         mediaWrapper.appendChild(vehicleWrapper);
-
-        image.onload = function () {
+        image.onload = function() {
 
             getOrientation(image);
 
@@ -88,6 +182,7 @@
             vehicleWrapper.style.width = '100%';
             uploadLabel.style.display = 'none';
             mediaWrapper.style.backgroundColor = '#a2a2a2';
+            mediaWrapper.style.display = 'block';
 
             if (cameraLabel) {
                 cameraLabel.style.display = 'none';
@@ -95,14 +190,12 @@
             } else {
                 uploadLabel.style.display = 'none';
             }
+
+            compress(file, vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight);
         }
-        // if(file.size > 1000000){
-        compress(file, vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight);
-        // } else {
-        upload(file);
-        // getOrientation(image);
-        // }
     }
+
+    var wheelsElements = [document.getElementsByClassName('wheel')[0], document.getElementsByClassName('wheel')[1]];
 
     function retry() {
         vehicleWrapper.innerHTML = '';
@@ -123,114 +216,8 @@
         }
     }
 
-    function confirm(imgURL) {
-        $.ajax({
-            url: 'https://localhost:44304/ReturnUserImage',
-            data: imgURL,
-            success: '',
-            dataType: 'jsonp',
-            type: 'GET',
-            success: function (data) {
-                window.location = data;
-            }
-        });
-    }
-
-    function compress(f, w, h) {
-        var width = w;
-        var height = h;
-        var fileName = f.name;
-        var reader = new FileReader();
-        var newFile;
-        reader.readAsDataURL(f);
-        reader.onload = function (event) {
-            var img = new Image();
-            img.src = event.target.result;
-            img.onload = function () {
-                var elem = document.createElement('canvas');
-                elem.width = width;
-                elem.height = height;
-                var ctx = elem.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                imageDataURL = elem.toDataURL('image/png')
-
-                ctx.canvas.toBlob(function (blob) {
-                    newFile = new File([blob], 'image.jpg', {
-                        type: 'image/jpeg',
-                        lastModified: Date.now()
-                    });
-                    // upload(newFile);
-
-                }, 'image/jpeg', 1);
-            };
-        };
-    }
-
-    function upload(file) {
-        var formData = new FormData();
-        formData.append('imageData', file, 'rssImageUpload');
-        formData.append('Mode', 'BestPair');
-        formData.append('IncludeStatistics', 'true');
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api-alpha.ridestyler.net/Imaging/ExtractWheelInformation');
-
-        xhr.upload.addEventListener("progress", function (evt) {
-            $('#loader').css('display', 'block');
-        }, false);
-
-        xhr.addEventListener("progress", function () {
-            // File is done uploading, waiting for server
-            $('#loader').css('display', 'block');
-        }, false);
-
-        xhr.onload = function () {
-            var response = JSON.parse(xhr.response);
-            // document.body.append(JSON.stringify(response));
-            if (response.Success === false) {
-                showModal("Image is not valid. Please try again.");
-                $('#loader').css('display', 'none');
-                retry();
-            }
-            showVehicleViewport(response.Result);
-            $('#loader').hide();
-            $('#mediaWrapper').show();
-        }
-        xhr.send(formData);
-    }
-
-    var wheelsElements = [document.getElementsByClassName('wheel')[0], document.getElementsByClassName('wheel')[1]];
-
-    function selectWheel(elem) {
-        var selectedWheels = document.getElementsByClassName('wheel-div');
-
-        for (var i = 0; i < selectedWheels.length; i++) {
-            if (selectedWheels[i].classList.value.includes('selected-wheel') && selectedWheels[i] != elem) {
-                selectedWheels[i].classList.remove('selected-wheel');
-            }
-        }
-
-        elem.classList.add('selected-wheel');
-
-        if (isVehicleActive === false) return;
-
-        var url = elem.firstChild.src.replace('catalog', 'side');
-        if (url) {
-            for (var i = 0; i < wheelsElements.length; i++) {
-                wheelsElements[i].src = url;
-                wheelsElements[i].className = 'wheel active';
-            }
-        }
-    }
-
-    function startOver() {
-        var wheelSelector = document.getElementsByClassName("wheel-container")[0];
-        var wrapper = document.querySelector('.canvas-wrapper');
-        var vehicleViewport = document.getElementsByClassName('vehicle-viewport')[0];
-        wrapper.style.display = 'none';
-        vehicleViewport.style.display = 'none';
-        wheelSelector.classList.remove("active");
-        this.upload();
+    function confirm() {
+        sessionUploadImage();
     }
 
     function showModal(text) {
@@ -238,7 +225,7 @@
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'ar-modal';
-            modal.innerHTML = '<p id="ar-modal-text">Error: ' + text + '</p>';
+            modal.innerHTML = '<p id="ar-modal-text">' + text + '</p>';
             document.body.appendChild(modal);
         } else {
             modal.style.display = "flex";
@@ -255,7 +242,7 @@
             confirmWrapper.style.display = 'flex';
             controlsWrapper.style.height = 'auto';
         } else {
-            showModal("Could not detect wheels. Try another image.");
+            showModal("Error: Could not detect wheels. Try another image.");
             retry();
         }
     }
@@ -292,7 +279,7 @@
     }
 
     confirmButton.addEventListener('click', function () {
-        confirm(imageDataURL);
+        confirm();
     });
 
     retryButton.addEventListener('click', function () {
