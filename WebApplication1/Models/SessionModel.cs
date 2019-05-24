@@ -19,6 +19,5 @@ namespace ARCaptureAPI.Models
         public DateTime Timestamp = new DateTime();
         public Guid ID;
         public String userImage;
-        //public static Dictionary<string, string> SessionCache = new Dictionary<string, string>();
     }
 }

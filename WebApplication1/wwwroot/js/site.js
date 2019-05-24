@@ -1,4 +1,4 @@
-﻿var startSession = $.get("https://localhost:44304/Session/Start", function () { });
+﻿var startSession = $.get("http://192.168.1.185:3000/Session/Start", function () { });
 startSession.done(function (data) {
     $('#controlsWrapper').css('display', 'flex');
     var appSession = data;
@@ -26,18 +26,18 @@ startSession.done(function (data) {
     }
 
     function sessionWaiting() {
-        $.get("https://localhost:44304/Session/ScanStarted", { id: appSession.id } )
+        $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: appSession.id } )
             .done(function (data) {
                 return;
             });
     }
 
     function sessionEnd() {
-        $.get("https://localhost:44304/Session/End", { id: appSession.id });
+        $.get("http://192.168.1.185:3000/Session/End", { id: appSession.id });
     }
 
     function sessionUploadImage() {
-        $.post("https://localhost:44304/Session/UploadImage", { id: appSession.id, imageData: imageURL })
+        $.post("http://192.168.1.185:3000/Session/UploadImage", { id: appSession.id, imageData: imageURL })
             .done(function (data) {
                 if (data == true) {
                     showModal("Image has been uploaded to RideStyler.");
@@ -57,7 +57,7 @@ startSession.done(function (data) {
         formData.append('IncludeStatistics', 'true');
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api-alpha.ridestyler.net/Imaging/ExtractWheelInformation');
+        xhr.open('POST', 'http://api-alpha.ridestyler.net/Imaging/ExtractWheelInformation');
 
         xhr.upload.addEventListener("progress", function (evt) {
             $('#loader').css('display', 'block');
@@ -135,32 +135,48 @@ startSession.done(function (data) {
     }
 
     function compress(f, w, h) {
-
-        var width = w;
-        var height = h;
+        var fileName = f.name;
+        var width = 800;
+        var height = parseInt(h * width / w);
         var reader = new FileReader();
         var newFile;
         reader.readAsDataURL(f);
         reader.onload = function (event) {
             var img = new Image();
             img.src = event.target.result;
+            img.width = width;
+            img.height = height;
             img.onload = function () {
+                console.log(img.width + ' ' + img.height);
                 var canvas = document.createElement('canvas');
                 canvas.width = width;
                 canvas.height = height;
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                imageURL = canvas.toDataURL('image/jpeg');
+                imageURL = canvas.toDataURL('image/png');
 
-                ctx.canvas.toBlob(function (blob) {
-                    newFile = new File([blob], 'image.jpg', {
-                        type: 'image/jpeg',
-                        lastModified: Date.now()
-                    });
+                function dataURLtoFile(dataurl, fileName) {
+                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    return new File([u8arr], fileName, { type: mime });
+                }
 
-                    upload(newFile);
+                newFile = dataURLtoFile(imageURL, 'image.png');
 
-                }, 'image/jpeg', 1);
+                upload(newFile);
+                //ctx.canvas.toBlob(function (blob) {
+
+                //    newFile = new File([blob], fileName, {
+                //        type: 'image/jpeg',
+                //        lastModified: Date.now()
+                //    });
+
+                //    upload(newFile);
+
+                //}, 'image/jpeg', 1);
             };
         };
     }
@@ -201,6 +217,7 @@ startSession.done(function (data) {
         vehicleWrapper.innerHTML = '';
         vehicleWrapper.style = '';
         mediaWrapper.style = '';
+        mediaWrapper.style.display = "none";
         confirmWrapper.style.display = 'none';
         controlsWrapper.style.height = "100%";
 
