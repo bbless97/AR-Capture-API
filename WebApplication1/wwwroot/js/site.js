@@ -15,6 +15,7 @@ startSession.done(function (data) {
     var confirmWrapper = document.getElementById('confirm');
     var retryButton = document.getElementById('retryButton');
     var confirmButton = document.getElementById('confirmButton');
+    var imageOrientation;
     var imageURL;
 
     if (promptCaptureSupport != false) {
@@ -53,8 +54,6 @@ startSession.done(function (data) {
     function upload(file) {
         var formData = new FormData();
         formData.append('imageData', file, 'rssImageUpload');
-        formData.append('Mode', 'BestPair');
-        formData.append('IncludeStatistics', 'true');
 
         var xhr = new XMLHttpRequest();
         xhr.open('POST', 'http://api-alpha.ridestyler.net/Imaging/ExtractWheelInformation');
@@ -84,6 +83,11 @@ startSession.done(function (data) {
     }
 
     function getOrientation(image) {
+        var wheelWrapper = document.createElement('div');
+        wheelWrapper.id = 'wheelWrapper';
+        vehicleWrapper.appendChild(wheelWrapper);
+        $(wheelWrapper).css('height', vehicleWrapper.Height + 'px');
+        $(wheelWrapper).css('width', vehicleWrapper.width + 'px');
         EXIF.getData(image, function () {
             var tags = EXIF.getAllTags(this);
             if (tags.Orientation == 6) {
@@ -91,42 +95,48 @@ startSession.done(function (data) {
                     mediaWrapper.style.cssText = '-webkit-transform: rotate(0deg);'
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
-                    mediaWrapper.style.display = 'block';
                     controlsWrapper.style.position = 'relative';
                     controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
                 } else {
                     mediaWrapper.style.cssText = 'transform: rotate(90deg) translate(12.3%);';
-                    mediaWrapper.style.marginBottom = '18%';
+                    mediaWrapper.style.marginBottom = '25%';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '100%';
-                    mediaWrapper.style.display = 'block';
                 }
             } else if (tags.Orientation == 8) {
                 if (ios) {
                     mediaWrapper.style.cssText = '-webkit-transform: rotate(0deg);';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
+                    mediaWrapper.style.marginBottom = '25%';
                     controlsWrapper.style.position = 'relative';
-                    mediaWrapper.style.display = 'block';
-                    controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
+                    controlsWrapper.style.top = (mediaWrapper / 2.5) + 'px';
                 } else {
                     mediaWrapper.style.cssText = 'transform: rotate(-90deg) translate(12.3%);';
-                    mediaWrapper.style.marginBottom = '18%';
+                    mediaWrapper.style.marginBottom = '25%';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '100%';
-                    mediaWrapper.style.display = 'block';
                 }
             } else if (tags.Orientation == 3) {
                 if (ios) {
                     mediaWrapper.style.cssText = '-webkit-transform: rotate(0deg);';
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
-                    mediaWrapper.style.display = 'block';
+                    wheelWrapper.style.cssText = 'transform: rotate(180deg)';
+                    wheelWrapper.style.position = 'absolute';
+                    console.log(vehicleWrapper.width)
+                    console.log(vehicleWrapper.height)
+                    wheelWrapper.style.width = vehicleImage.width + 'px';
+                    wheelWrapper.style.height = vehicleImage.height + 'px';
                 } else {
                     mediaWrapper.style.cssText = 'transform: rotate(180deg) translate(0%);';
                     mediaWrapper.style.height = 'auto';
-                    mediaWrapper.style.width = '97%';
-                    mediaWrapper.style.display = 'block';
+                }
+            } else if (tags.Orientation == 1) {
+                if (ios) {
+                    $(wheelWrapper).css('height', height);
+                    $(wheelWrapper).css('width', width);
+                    $(wheelWrapper).css('position', absolute);
                 }
             }
             mediaWrapper.style.backgroundColor = '#a2a2a2';
@@ -135,11 +145,9 @@ startSession.done(function (data) {
     }
 
     function compress(f, w, h) {
-        var fileName = f.name;
-        var width = 800;
+        var width = 650;
         var height = parseInt(h * width / w);
         var reader = new FileReader();
-        var newFile;
         reader.readAsDataURL(f);
         reader.onload = function (event) {
             var img = new Image();
@@ -147,36 +155,23 @@ startSession.done(function (data) {
             img.width = width;
             img.height = height;
             img.onload = function () {
-                console.log(img.width + ' ' + img.height);
                 var canvas = document.createElement('canvas');
                 canvas.width = width;
                 canvas.height = height;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
                 var ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                imageURL = canvas.toDataURL('image/png');
-
-                function dataURLtoFile(dataurl, fileName) {
-                    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                    while (n--) {
-                        u8arr[n] = bstr.charCodeAt(n);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                imageURL = ctx.canvas.toDataURL(img, '*', 1);
+                ctx.canvas.toBlob(function (blob) {
+                    if (blob.size < f.size) {
+                        upload(blob);
+                        console.log('compressed');
+                    } else {
+                        upload(f);
+                        console.log('not compressed');
                     }
-                    return new File([u8arr], fileName, { type: mime });
-                }
-
-                newFile = dataURLtoFile(imageURL, 'image.png');
-
-                upload(newFile);
-                //ctx.canvas.toBlob(function (blob) {
-
-                //    newFile = new File([blob], fileName, {
-                //        type: 'image/jpeg',
-                //        lastModified: Date.now()
-                //    });
-
-                //    upload(newFile);
-
-                //}, 'image/jpeg', 1);
+                }, '*', 0);
             };
         };
     }
@@ -184,7 +179,6 @@ startSession.done(function (data) {
     function convertToImage(fileInput) {
         var file = fileInput.files[0];
         var image = new Image();
-        var imageElement = document.createElement('IMG');
         image.src = URL.createObjectURL(file);
         image.id = 'vehicleImage';
         mediaWrapper.appendChild(vehicleWrapper);
@@ -220,6 +214,7 @@ startSession.done(function (data) {
         mediaWrapper.style.display = "none";
         confirmWrapper.style.display = 'none';
         controlsWrapper.style.height = "100%";
+        $('#wheelWrapper').removeAttr('style');
 
         if (promptCaptureSupport != false) {
             cameraLabel.style.display = 'inline-block';
@@ -254,8 +249,8 @@ startSession.done(function (data) {
 
     function showVehicleViewport(r) {
         if (r.RelativeBounds.length != 0) {
-            vehicleWrapper.appendChild(wheelsElements[0] = createWheelElement(r.RelativeBounds[0].Bounds));
-            vehicleWrapper.appendChild(wheelsElements[1] = createWheelElement(r.RelativeBounds[1].Bounds));
+            $('#wheelWrapper').append(wheelsElements[0] = createWheelElement(r.RelativeBounds[0].Bounds));
+            $('#wheelWrapper').append(wheelsElements[1] = createWheelElement(r.RelativeBounds[1].Bounds));
             confirmWrapper.style.display = 'flex';
             controlsWrapper.style.height = 'auto';
         } else {
@@ -305,15 +300,12 @@ startSession.done(function (data) {
 
     window.addEventListener("orientationchange", function (e) {
         if (screen.orientation.angle == 0) {
-            var vehicleImage = document.getElementById('vehicleImage');
-            var wrapper = document.getElementById('vehicleWrapper');
-            mediaWrapper.style.height = wrapper.height;
-            mediaWrapper.style.width = wrapper.width;
-            controlsWrapper.style = '';
             controlsWrapper.style.height = 'auto';
+            controlsWrapper.style.display = 'bock';
         } else {
             controlsWrapper.style.position = 'relative';
             controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
+            controlsWrapper.style.height = 'block';
         }
     });
 });
