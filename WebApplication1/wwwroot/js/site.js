@@ -1,4 +1,4 @@
-﻿var startSession = $.get("http://192.168.1.185:3000/Session/Start", function () { });
+﻿var startSession = $.get("http://localhost:50199/Session/Start", function () { });
 startSession.done(function (data) {
     $('#controlsWrapper').css('display', 'flex');
     var appSession = data;
@@ -15,8 +15,10 @@ startSession.done(function (data) {
     var confirmWrapper = document.getElementById('confirm');
     var retryButton = document.getElementById('retryButton');
     var confirmButton = document.getElementById('confirmButton');
-    var imageOrientation;
+    var wheelWrapper = document.createElement('div');
+    wheelWrapper.id = 'wheelWrapper';
     var imageURL;
+
 
     if (promptCaptureSupport != false) {
         $(cameraLabel).css('display', 'inline-block');
@@ -27,18 +29,18 @@ startSession.done(function (data) {
     }
 
     function sessionWaiting() {
-        $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: appSession.id } )
+        $.get("http://localhost:50199/Session/ScanStarted", { id: appSession.id } )
             .done(function (data) {
                 return;
             });
     }
 
     function sessionEnd() {
-        $.get("http://192.168.1.185:3000/Session/End", { id: appSession.id });
+        $.get("http://localhost:50199/Session/End", { id: appSession.id });
     }
 
     function sessionUploadImage() {
-        $.post("http://192.168.1.185:3000/Session/UploadImage", { id: appSession.id, imageData: imageURL })
+        $.post("http://localhost:50199/Session/UploadImage", { id: appSession.id, imageData: imageURL })
             .done(function (data) {
                 if (data == true) {
                     showModal("Image has been uploaded to RideStyler.");
@@ -83,11 +85,6 @@ startSession.done(function (data) {
     }
 
     function getOrientation(image) {
-        var wheelWrapper = document.createElement('div');
-        wheelWrapper.id = 'wheelWrapper';
-        vehicleWrapper.appendChild(wheelWrapper);
-        $(wheelWrapper).css('height', vehicleWrapper.Height + 'px');
-        $(wheelWrapper).css('width', vehicleWrapper.width + 'px');
         EXIF.getData(image, function () {
             var tags = EXIF.getAllTags(this);
             if (tags.Orientation == 6) {
@@ -124,10 +121,6 @@ startSession.done(function (data) {
                     mediaWrapper.style.width = '97%';
                     wheelWrapper.style.cssText = 'transform: rotate(180deg)';
                     wheelWrapper.style.position = 'absolute';
-                    console.log(vehicleWrapper.width)
-                    console.log(vehicleWrapper.height)
-                    wheelWrapper.style.width = vehicleImage.width + 'px';
-                    wheelWrapper.style.height = vehicleImage.height + 'px';
                 } else {
                     mediaWrapper.style.cssText = 'transform: rotate(180deg) translate(0%);';
                     mediaWrapper.style.height = 'auto';
@@ -181,7 +174,6 @@ startSession.done(function (data) {
         var image = new Image();
         image.src = URL.createObjectURL(file);
         image.id = 'vehicleImage';
-        mediaWrapper.appendChild(vehicleWrapper);
         image.onload = function() {
 
             getOrientation(image);
@@ -190,9 +182,12 @@ startSession.done(function (data) {
             vehicleWrapper.append(image);
             vehicleWrapper.style.height = 'auto';
             vehicleWrapper.style.width = '100%';
+            vehicleWrapper.append(wheelWrapper);
             uploadLabel.style.display = 'none';
             mediaWrapper.style.backgroundColor = '#a2a2a2';
             mediaWrapper.style.display = 'block';
+            wheelWrapper.style.height = vehicleWrapper.offsetHeight + 'px';
+            wheelWrapper.style.width = vehicleWrapper.offsetWidth + 'px';
 
             if (cameraLabel) {
                 cameraLabel.style.display = 'none';
@@ -210,6 +205,8 @@ startSession.done(function (data) {
     function retry() {
         vehicleWrapper.innerHTML = '';
         vehicleWrapper.style = '';
+        wheelWrapper.innerHTML = '';
+        wheelWrapper.style = '';
         mediaWrapper.style = '';
         mediaWrapper.style.display = "none";
         confirmWrapper.style.display = 'none';
@@ -302,11 +299,27 @@ startSession.done(function (data) {
         if (screen.orientation.angle == 0) {
             controlsWrapper.style.height = 'auto';
             controlsWrapper.style.display = 'bock';
+            setTimeout(function () {
+                wheelWrapper.style.height = vehicleWrapper.offsetHeight + 'px';
+                wheelWrapper.style.width = vehicleWrapper.offsetWidth + 'px';
+            }, 1);
+            
         } else {
             controlsWrapper.style.position = 'relative';
             controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
             controlsWrapper.style.height = 'block';
+            setTimeout(function () {
+                wheelWrapper.style.height = vehicleWrapper.offsetHeight + 'px';
+                wheelWrapper.style.width = vehicleWrapper.offsetWidth + 'px';
+            }, 1);
         }
+    });
+
+    window.addEventListener('resize', function (e) {
+        setTimeout(function () {
+            wheelWrapper.style.height = vehicleWrapper.offsetHeight + 'px';
+            wheelWrapper.style.width = vehicleWrapper.offsetWidth + 'px';
+        }, 1);
     });
 });
 

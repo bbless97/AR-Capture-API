@@ -85,6 +85,14 @@ body, html {
     background-color: white;
 }
 
+#wheelWrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+}
+
 #captureButton {
     border-radius: 30px;
     width: 45px;
