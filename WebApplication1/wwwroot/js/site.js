@@ -297,7 +297,6 @@ startSession.done(function (data) {
 
     window.addEventListener("orientationchange", function (e) {
         if (screen.orientation.angle == 0) {
-            controlsWrapper.style.height = 'auto';
             controlsWrapper.style.display = 'bock';
             setTimeout(function () {
                 wheelWrapper.style.height = vehicleWrapper.offsetHeight + 'px';
@@ -307,7 +306,6 @@ startSession.done(function (data) {
         } else {
             controlsWrapper.style.position = 'relative';
             controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
-            controlsWrapper.style.height = 'block';
             setTimeout(function () {
                 wheelWrapper.style.height = vehicleWrapper.offsetHeight + 'px';
                 wheelWrapper.style.width = vehicleWrapper.offsetWidth + 'px';
