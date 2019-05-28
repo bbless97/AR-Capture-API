@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ARCaptureAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 
 namespace ARCaptureAPI.Controllers
 {
@@ -17,6 +18,24 @@ namespace ARCaptureAPI.Controllers
         /// <returns>returns newly created instance</returns>
         public IActionResult Start()
         {
+            //start new session and keep ref
+            SessionModel startSession = SesFactory.StartSession();
+
+            //generate url to capture endpoint
+            string sessionURL = Url.Action("CaptureUI", "Capture", new { sessionID = startSession.ID });
+
+            //generate QR
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(sessionURL, QRCodeGenerator.ECCLevel.Q);
+            Base64QRCode qrCode = new Base64QRCode(qrCodeData);
+            string qrCodeImageAsBase64 = qrCode.GetGraphic(20);
+
+            //create new session start model, with session model and QR string
+            SessionStartModel sessionStartModel = new SessionStartModel();
+            sessionStartModel.CaptureQR = qrCodeImageAsBase64;
+            sessionStartModel.CaptureURL = sessionURL;
+            sessionStartModel.Session = startSession;
+
             return Json(SesFactory.StartSession());
         }
 
@@ -42,7 +61,7 @@ namespace ARCaptureAPI.Controllers
 
             if (session != null)
             {
-                session.userImage = imageData;
+                session.UserImage = imageData;
                 session.State = SessionState.ImageReady;
                 return Json(true);
             }

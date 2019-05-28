@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewData["Title"] = "Home Page";
+}
+<body>
+    <div id="QR-wrap"></div>
+</body>
+</html>
+
+@section Scripts
+{ 
+    <script>
+        $.get('http://192.168.1.185:3000/Session/Start', {});
+    </script>
+}
+

@@ -14,5 +14,10 @@ namespace ARCaptureAPI.Controllers
         {
             return View();
         }
+
+        public IActionResult TestSession()
+        {
+            return View();
+        }
     }
 }

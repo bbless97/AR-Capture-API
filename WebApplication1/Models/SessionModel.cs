@@ -18,6 +18,7 @@ namespace ARCaptureAPI.Models
         public SessionState State;
         public DateTime Timestamp = new DateTime();
         public Guid ID;
-        public String userImage;
+        public String UserImage;
+        public Object WheelBoundInformation;
     }
 }

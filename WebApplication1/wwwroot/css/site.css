@@ -55,7 +55,6 @@ body, html {
     align-items: center;
     margin-bottom: 15px;
     padding: .3em;
-    display: none;
 }
 
 #controlsWrapper {
@@ -90,7 +89,7 @@ body, html {
     top: 0;
     left: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
 }
 
 #captureButton {
@@ -111,6 +110,14 @@ video {
     left: 50%;
 }
 
+#uploadDescription {
+    font-size: 1em;
+    font-weight: bold;
+    max-width: 300px;
+    margin: 0 auto;
+    display: inline-block;
+}
+
 #uploadLabel, #cameraLabel {
     width: 70%;
     max-width: 300px;
@@ -121,7 +128,7 @@ video {
     background: #ea1921;
     color: white;
     padding: 16px 16px;
-    margin-bottom: 54px;
+    margin-bottom: 25px;
     font-size: 3.5em;
     border-radius: 9px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
