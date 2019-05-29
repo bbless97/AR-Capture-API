@@ -3,7 +3,7 @@ if (sessionId != null) {
     var ios = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
     var testInput = document.createElement('input');
     var promptCaptureSupport = testInput.capture != undefined;
-    var mediaWrapper = document.getElementById('mediaWrapper');
+    var mediaWrapper = document.getElementById('mediaWrapper'); $('#mediaWrapper').css('display', 'none');
     var controlsWrapper = document.getElementById('controlsWrapper'); $('#controlsWrapper').css('display', 'flex');
     var vehicleWrapper = document.getElementById('vehicleWrapper');
     var uploadInput = document.getElementById('uploadInput');
@@ -46,7 +46,7 @@ if (sessionId != null) {
             .done(function (data) {
                 $('#loader').css('display', 'none');
                 if (data == true) {
-                    completeWrapper.style.display = 'block';
+                    completeWrapper.style.display = 'flex';
                     controlsWrapper.style.display = 'none';
                     mediaWrapper.style.display = 'none';
                     console.log(data)
@@ -93,7 +93,7 @@ if (sessionId != null) {
     function getOrientation(image) {
         EXIF.getData(image, function () {
             var tags = EXIF.getAllTags(this);
-            mediaWrapper.style.background = 'gray';
+            mediaWrapper.style.background = 'white';
             userImageOrientation = tags.Orientation;
             console.log(userImageOrientation);
 
@@ -201,7 +201,7 @@ if (sessionId != null) {
             vehicleWrapper.append(wheelWrapper);
             uploadLabel.style.display = 'none';
             uploadDescription.style.display = 'none';
-            mediaWrapper.style.backgroundColor = '#a2a2a2';
+            mediaWrapper.style.backgroundColor = 'white';
             mediaWrapper.style.display = 'block';
 
             compress(file, vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight);
@@ -232,6 +232,7 @@ if (sessionId != null) {
         uploadDescription.style.display = 'inline-block';
         $('#wheelWrapper').removeAttr('style');
         $('#mediaWrapper').removeAttr('style');
+        $('#mediaWrapper').hide();
 
         if (promptCaptureSupport != false) {
             cameraLabel.style.display = 'inline-block';

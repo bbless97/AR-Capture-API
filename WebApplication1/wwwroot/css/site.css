@@ -6,6 +6,7 @@ body, html {
     /* font-family: Segoe UI; */
     font-family: arial;
     font-weight: 400;
+    color: white;
 }
 
 #app {
@@ -19,7 +20,51 @@ body, html {
     align-content: center;
     justify-content: center;
     overflow: scroll;
-    /* box-shadow: inset 0px 0px 76px rgba(0,0,0,0.1); */
+    background: linear-gradient(.75turn, #ea1921, #ff4545);
+}
+
+#rs-logo-header {
+    background: rgb(50, 50, 50);
+    height: 90px;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    z-index: 500;
+    padding: 0 20px;
+    border-radius: 0px 0px 40px 40px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    border: 5px solid white;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+}
+
+#rs-logo {
+    width: 63%;
+    max-width: 190px;
+    height: auto;
+    display: inline-block;
+    top: 0px;
+    position: relative;
+}
+
+#rs-logo-subtext {
+    display: inline-block;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    margin-right: 1rem;
+    font-size: 1.8rem;
+    white-space: nowrap;
+    color: white;
+    font-weight: 600;
+    left: 10px;
+    top: 5px;
+    vertical-align: bottom;
+    position: relative;
 }
 
 #loader {
@@ -42,7 +87,7 @@ body, html {
     opacity: 1;
     transition: opacity 300ms linear 0s;
     position: absolute;
-    left: 48%;
+    left: 45%;
     top: 45%;
     z-index: 50;
 }
@@ -50,16 +95,19 @@ body, html {
 #mediaWrapper {
     max-width: 700px;
     height: auto;
-    margin: 0 auto;
+    margin: 140px auto 0;
     position: relative;
     align-items: center;
     margin-bottom: 15px;
     padding: .3em;
+    width: 95%;
+    border-radius: 4px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 }
 
 #controlsWrapper {
     width: 100%;
-    height: 100%;
+    height: 90%;
     justify-content: center;
     display: none;
     flex-direction: column;
@@ -69,19 +117,31 @@ body, html {
 #completeWrapper {
     display: none;
     text-align: center;
+    flex-direction: column;
+    height: 100%;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
 }
 
 #completeCheck {
     display: block;
-    color: #00ee00;
-    font-size: 170px;
-    margin: 130px 0px 50px;
+    color: #323232;
+    margin-bottom: 10%;
+    text-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    -webkit-text-stroke: white;
+    -webkit-text-stroke-width: 5px;
 }
+
+    #completeCheck i {
+        font-size: 10em;
+    }
 
 #completeMessage {
     display: inline-block;
     font-size: 1.5em;
     font-weight: bold;
+    text-shadow: 0px 0px 10px rgba(0,0,0,0.1);
 }
 
 #head-text {
@@ -129,30 +189,36 @@ video {
 }
 
 #uploadDescription {
-    font-size: 1em;
+    font-size: 2em;
+    max-width: 700px;
     font-weight: bold;
-    max-width: 300px;
-    margin: 0 auto;
+    width: 90%;
+    margin: 200px auto 50px;
     display: inline-block;
+    text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 #uploadLabel, #cameraLabel {
-    width: 70%;
-    max-width: 300px;
-    line-height: 80px;
+    width: 90%;
+    max-width: 450px;
+    line-height: 56px;
     display: none;
     cursor: pointer;
-    border: 1px solid #ea1921;
-    background: #ea1921;
-    color: white;
+    background: #ffffff;
+    color: #ea1921;
     padding: 16px 16px;
     margin-bottom: 25px;
     font-size: 3.5em;
-    border-radius: 9px;
+    border-radius: 70px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
     align-self: center;
     vertical-align: middle;
 }
+
+    #uploadLabel:hover, #cameraLabel:hover {
+        background-color: rgb(50, 50, 50);
+        color: white;
+    }
 
 #uploadInput, #cameraInput {
     width: 0px;
@@ -170,24 +236,30 @@ video {
     font-size: 1.6em;
     bottom: 0px;
     position: relative;
-    margin-top: 30px;
+    margin: 30px auto 0px;
 }
 
-    #confirm span {
-        margin-top: 25px;
-        padding: 0px 20px;
-    }
+#confirm span {
+    padding: 0px 20px;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+
+.controls {
+    margin: 20px 0;
+}
 
 #confirmButton {
     display: inline-flex;
     text-align: center;
     width: auto;
     height: auto;
-    margin: 28px 40px;
+    margin: 0px 37px;
     cursor: pointer;
-    border: none;
     border-radius: 50%;
-    background-color: #588a27;
+    background-color: #323232;
+    border: 5px solid #ffffff;
     font-size: 1em;
     text-transform: uppercase;
     padding: 24px;
@@ -199,7 +271,7 @@ video {
 #retryButton {
     display: inline-flex;
     height: auto;
-    margin: 28px 40px;
+    margin: 0px 37px;
     cursor: pointer;
     border: none;
     border-radius: 50%;
@@ -208,6 +280,7 @@ video {
     text-transform: uppercase;
     padding: 24px;
     color: white;
+    border: 5px solid #ffffff;
     vertical-align: middle;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 }
@@ -238,13 +311,17 @@ video {
 }
 
 #ar-modal-text {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    align-self: center;
     vertical-align: middle;
     color: #ffffff;
     text-align: center;
     height: auto;
-    top: 50%;
-    width: auto;
+    font-size: 1.5em;
+    width: 70%;
     position: relative;
     margin: 0 auto;
 }

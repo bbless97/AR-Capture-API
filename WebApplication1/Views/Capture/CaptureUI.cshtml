@@ -2,16 +2,20 @@
     ViewData["Title"] = "Home Page";
 }
     <div id="app">
+        <div id="rs-logo-header">
+            <img src="~/images/rs-logo-white.svg" id="rs-logo" />
+            <span id="rs-logo-subtext">Capture API</span>
+        </div>
         <div id="mediaWrapper">
             <div id="vehicleWrapper"></div>
         </div>
         <div id="loader"><img id="loader-gif" src="http://static.ridestyler.net/images/loaders/loader_radial_chaser_back_on_white_32.gif"></div>
         <div id="controlsWrapper">
+            <div id="uploadDescription"></div>
             <input type="file" name="uploadInput" id="uploadInput">
             <label for="cameraInput" id="cameraLabel"><i class="fas fa-camera"></i></label>
             <label for="uploadInput" id="uploadLabel"><i class="fas fa-images"></i></label>
             <input type="file" accept="image/*" capture="camera" name="cameraInput" id="cameraInput">
-            <div id="uploadDescription"></div>
             <div id="confirm"><span>Please confirm the wheel locations were accurately located.</span><div class="controls"><button id="confirmButton"><i class="fas fa-check"></i></button><button id="retryButton"><i class="fas fa-sync-alt"></i></button></div></div>
         </div>
         <div id="completeWrapper">
