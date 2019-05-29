@@ -3,14 +3,53 @@
     ViewData["Title"] = "Home Page";
 }
 <body>
-    <div id="QR-wrap"></div>
+    <div id="QR-wrap">
+        <img style="width: 24%;" id="QR-img"/>
+    </div>
+    <div><a target="_blank" id="desktop-test-link">Test Link</a></div>
+    <div id="userStatus"></div>
 </body>
 </html>
 
 @section Scripts
 { 
     <script>
-        $.get('http://192.168.1.185:3000/Session/Start', {});
+        var sessionStartModel;
+        var QRimg = document.getElementById('QR-img');
+        var testLink = document.getElementById('desktop-test-link');
+        var userStatus = document.getElementById('userStatus');
+
+        $.get('http://localhost:50199/Session/Start')
+            .done(function(data){
+                sessionStartModel = data;
+                QRimg.src = "data:image/png;base64, " + sessionStartModel.captureQR;
+                testLink.href = sessionStartModel.captureURL;
+            });
+
+        var myInterval = setInterval(checkSessionStatus, 3000);
+
+        function checkSessionStatus() {
+            $.get('http://localhost:50199/Session/Get', { id: sessionStartModel.session.id })
+                .done(function (data) {
+                    updateUserStatus(data.state);
+                    console.log(data.state);
+                    if (data.state == 3) {
+                        clearInterval(myInterval);
+                    }
+            });
+        }
+
+        function updateUserStatus(status) {
+            if (status == 1) {
+                userStatus.innerHTML = '';
+            } else if (status == 2) {
+                userStatus.innerHTML = 'User Image is ready to be uploaded.'
+            } else if (status == 3) {
+                userStatus.innerHTML = 'User image has been loaded.'
+            } else if (status == 4) {
+                userStatus.innerHTML = 'Sorry, your session has expired.'
+            }
+        }
     </script>
 }
 

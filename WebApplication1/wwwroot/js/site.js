@@ -1,7 +1,5 @@
-﻿var startSession = $.get("http://192.168.1.185:3000/Session/Start", function () { });
-startSession.done(function (data) {
-    $('#controlsWrapper').css('display', 'flex');
-    var appSession = data;
+﻿var sessionId = window.location.search.split('?sessionID=')[1];
+if (sessionId != null) {
     var ios = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
     var testInput = document.createElement('input');
     var promptCaptureSupport = testInput.capture != undefined;
@@ -19,6 +17,8 @@ startSession.done(function (data) {
     var uploadDescription = document.getElementById('uploadDescription');
     wheelWrapper.id = 'wheelWrapper';
     var imageURL;
+    $('#controlsWrapper').css('display', 'flex');
+
 
 
     if (promptCaptureSupport != false) {
@@ -32,24 +32,23 @@ startSession.done(function (data) {
     }
 
     function sessionWaiting() {
-        $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: appSession.id } )
+        $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: sessionId })
             .done(function (data) {
                 return;
             });
     }
 
     function sessionEnd() {
-        $.get("http://192.168.1.185:3000/Session/End", { id: appSession.id });
+        $.get("http://192.168.1.185:3000/Session/End", { id: sessionId });
     }
 
     function sessionUploadImage() {
-        $.post("http://192.168.1.185:3000/Session/UploadImage", { id: appSession.id, imageData: imageURL })
+        $.post("http://192.168.1.185:3000/Session/UploadImage", { id: sessionId, imageData: imageURL })
             .done(function (data) {
                 $('#loader').css('display', 'none');
                 if (data == true) {
                     showModal("Image has been uploaded to RideStyler.");
                     retry();
-                    sessionEnd();
                 } else {
                     showModal("There was a problem uploading your image. Please try again with a different image.");
                     retry();
@@ -188,7 +187,7 @@ startSession.done(function (data) {
         var image = new Image();
         image.src = URL.createObjectURL(file);
         image.id = 'vehicleImage';
-        image.onload = function() {
+        image.onload = function () {
 
             $('#loader').css('display', 'block');
             vehicleWrapper.append(image);
@@ -312,5 +311,4 @@ startSession.done(function (data) {
     retryButton.addEventListener('click', function () {
         retry();
     });
-});
-
+}

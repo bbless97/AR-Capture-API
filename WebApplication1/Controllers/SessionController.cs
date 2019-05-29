@@ -22,7 +22,7 @@ namespace ARCaptureAPI.Controllers
             SessionModel startSession = SesFactory.StartSession();
 
             //generate url to capture endpoint
-            string sessionURL = Url.Action("CaptureUI", "Capture", new { sessionID = startSession.ID });
+            string sessionURL = "192.168.1.185:3000" + Url.Action("CaptureUI", "Capture", new { sessionID = startSession.ID });
 
             //generate QR
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
@@ -36,7 +36,7 @@ namespace ARCaptureAPI.Controllers
             sessionStartModel.CaptureURL = sessionURL;
             sessionStartModel.Session = startSession;
 
-            return Json(SesFactory.StartSession());
+            return Json(sessionStartModel);
         }
 
         /// <summary>
