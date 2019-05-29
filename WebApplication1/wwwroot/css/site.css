@@ -66,6 +66,24 @@ body, html {
     position: absolute;
 }
 
+#completeWrapper {
+    display: none;
+    text-align: center;
+}
+
+#completeCheck {
+    display: block;
+    color: #00ee00;
+    font-size: 170px;
+    margin: 130px 0px 50px;
+}
+
+#completeMessage {
+    display: inline-block;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
 #head-text {
     display: block;
     width: 100%;

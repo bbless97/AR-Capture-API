@@ -22,7 +22,7 @@ namespace ARCaptureAPI.Controllers
             SessionModel startSession = SesFactory.StartSession();
 
             //generate url to capture endpoint
-            string sessionURL = "192.168.1.185:3000" + Url.Action("CaptureUI", "Capture", new { sessionID = startSession.ID });
+            string sessionURL = "http://192.168.1.185:3000" + Url.Action("CaptureUI", "Capture", new { sessionID = startSession.ID });
 
             //generate QR
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
@@ -55,13 +55,15 @@ namespace ARCaptureAPI.Controllers
         /// <param name="id">id of session you want to store image, and update</param>
         /// <param name="imageData">imageData created from image</param>
         /// <returns>returns true if upload complete, false if upload failed</returns>
-        public IActionResult UploadImage(Guid id, string imageData)
+        public IActionResult Upload(Guid id, string imageData, int imageOrientation, string wheelData)
         {
             SessionModel session = SesFactory.GetSession(id);
 
             if (session != null)
             {
-                session.UserImage = imageData;
+                session.ImageData = imageData;
+                session.ImageOrientation = imageOrientation;
+                session.WheelBoundInformation = wheelData;
                 session.State = SessionState.ImageReady;
                 return Json(true);
             }

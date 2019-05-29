@@ -4,7 +4,7 @@ if (sessionId != null) {
     var testInput = document.createElement('input');
     var promptCaptureSupport = testInput.capture != undefined;
     var mediaWrapper = document.getElementById('mediaWrapper');
-    var controlsWrapper = document.getElementById('controlsWrapper');
+    var controlsWrapper = document.getElementById('controlsWrapper'); $('#controlsWrapper').css('display', 'flex');
     var vehicleWrapper = document.getElementById('vehicleWrapper');
     var uploadInput = document.getElementById('uploadInput');
     var uploadLabel = document.getElementById('uploadLabel');
@@ -13,13 +13,12 @@ if (sessionId != null) {
     var confirmWrapper = document.getElementById('confirm');
     var retryButton = document.getElementById('retryButton');
     var confirmButton = document.getElementById('confirmButton');
-    var wheelWrapper = document.createElement('div');
+    var completeWrapper = document.getElementById('completeWrapper');
+    var wheelWrapper = document.createElement('div'); wheelWrapper.id = 'wheelWrapper';
     var uploadDescription = document.getElementById('uploadDescription');
-    wheelWrapper.id = 'wheelWrapper';
     var imageURL;
-    $('#controlsWrapper').css('display', 'flex');
-
-
+    var userImageOrientation;
+    var wheelBounds;
 
     if (promptCaptureSupport != false) {
         $(cameraLabel).css('display', 'inline-block');
@@ -43,12 +42,14 @@ if (sessionId != null) {
     }
 
     function sessionUploadImage() {
-        $.post("http://192.168.1.185:3000/Session/UploadImage", { id: sessionId, imageData: imageURL })
+        $.post("http://192.168.1.185:3000/Session/Upload", { id: sessionId, imageData: imageURL, imageOrientation: userImageOrientation, wheelData: wheelBounds })
             .done(function (data) {
                 $('#loader').css('display', 'none');
                 if (data == true) {
-                    showModal("Image has been uploaded to RideStyler.");
-                    retry();
+                    completeWrapper.style.display = 'block';
+                    controlsWrapper.style.display = 'none';
+                    mediaWrapper.style.display = 'none';
+                    console.log(data)
                 } else {
                     showModal("There was a problem uploading your image. Please try again with a different image.");
                     retry();
@@ -81,6 +82,8 @@ if (sessionId != null) {
 
             sessionWaiting();
             showVehicleViewport(response.Result);
+            wheelBounds = JSON.stringify(response.Result);
+
             $('#loader').hide();
         }
 
@@ -91,6 +94,8 @@ if (sessionId != null) {
         EXIF.getData(image, function () {
             var tags = EXIF.getAllTags(this);
             mediaWrapper.style.background = 'gray';
+            userImageOrientation = tags.Orientation;
+            console.log(userImageOrientation);
 
             if (tags.Orientation == 6) {
                 if (ios) {

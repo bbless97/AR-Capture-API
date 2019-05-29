@@ -3,23 +3,50 @@
     ViewData["Title"] = "Home Page";
 }
 <body>
-    <div id="QR-wrap">
-        <img style="width: 24%;" id="QR-img"/>
+    <style>
+        .wheel.marker {
+            -webkit-transform-origin: 50% 50%;
+            transform-origin: 50% 50%;
+            opacity: 1;
+            background: rgba(255, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-sizing: border-box;
+            position: absolute;
+            border-radius: 50%;
+        }
+    </style>
+    <div id="QR-wrap" style="text-align:center;">
+        <img style="width: 24%; display:inline-block;" id="QR-img" />
+        <div><a target="_blank" id="desktop-test-link">Test Link</a></div>
     </div>
-    <div><a target="_blank" id="desktop-test-link">Test Link</a></div>
-    <div id="userStatus"></div>
+    <div id="userStatusModal" style="background: rgba(0,0,0,0.5); position: absolute; top: 0; left: 0; height: 100%; width: 100%; display: none; text-align:center;">
+        <div id="statusWrapper" style="background: white; width: 370px; border-radius: 5px; height: 230px; top: 34vh; position: relative; text-align: center; display: inline-block;">
+            <img id="loader-gif" src="http://static.ridestyler.net/images/loaders/loader_radial_chaser_back_on_white_32.gif" style="padding: 5px;border-radius: 21px;background: white;opacity: 1;transition: opacity 300ms linear 0s;position: relative;display: block;width: 14%;top: 27%;margin: 0 auto;left: auto;z-index: 50;">
+            <div id="userStatus" style="display: block;top: 42%;margin: 0 auto;position: relative;color: black;font-weight: bold;"></div>
+        </div>
+    </div>
+    <div id="userImageWrap" style="text-align:center;">
+        <div id="vehicleWrapper" style="margin: 0px auto; position: relative; align-items: center; height: 100%; width: auto; background-color: white; display: inline-block;">
+            <img id="userImage" style="display: inline-block;" />
+            <div id="wheelBoundsWrapper" style="height: 100%; width: 100%; position: absolute; top: 0;"></div>
+        </div>
+    </div>
 </body>
 </html>
-
 @section Scripts
 { 
     <script>
         var sessionStartModel;
+        var QRWrap = document.getElementById('QR-wrap');
         var QRimg = document.getElementById('QR-img');
         var testLink = document.getElementById('desktop-test-link');
         var userStatus = document.getElementById('userStatus');
+        var userStatusModal = document.getElementById('userStatusModal');
+        var userImage = document.getElementById('userImage');
+        var wheelBoundsWrapper = document.getElementById('wheelBoundsWrapper');
+        var vehicleWrapper = document.getElementById('vehicleWrapper');
 
-        $.get('http://localhost:50199/Session/Start')
+        $.get('http://192.168.1.185:3000/Session/Start')
             .done(function(data){
                 sessionStartModel = data;
                 QRimg.src = "data:image/png;base64, " + sessionStartModel.captureQR;
@@ -29,27 +56,65 @@
         var myInterval = setInterval(checkSessionStatus, 3000);
 
         function checkSessionStatus() {
-            $.get('http://localhost:50199/Session/Get', { id: sessionStartModel.session.id })
+            $.get('http://192.168.1.185:3000/Session/Get', { id: sessionStartModel.session.id })
                 .done(function (data) {
-                    updateUserStatus(data.state);
-                    console.log(data.state);
-                    if (data.state == 3) {
-                        clearInterval(myInterval);
-                    }
+                    update(data);
             });
         }
 
-        function updateUserStatus(status) {
-            if (status == 1) {
+        function update(sessionData) {
+            if (sessionData.state == 1) {
                 userStatus.innerHTML = '';
-            } else if (status == 2) {
-                userStatus.innerHTML = 'User Image is ready to be uploaded.'
-            } else if (status == 3) {
-                userStatus.innerHTML = 'User image has been loaded.'
-            } else if (status == 4) {
-                userStatus.innerHTML = 'Sorry, your session has expired.'
+            } else if (sessionData.state == 2) {
+                userStatusModal.style.display = 'block';
+                userStatus.innerHTML = 'Image being prepared...';
+            } else if (sessionData.state == 3) {
+                userStatus.innerHTML = 'Image Loaded!';
+                clearInterval(myInterval);
+                if (sessionData.wheelBoundInformation != null) {
+                    showWheelBounds(sessionData.wheelBoundInformation);
+                }
+                if (sessionData.imageData != null) {
+                    userImage.src = sessionData.imageData;
+                    getOrientation(userImage, sessionData.imageOrientation)
+                    userStatusModal.style.display = 'none';
+                    QRWrap.style.display = 'none';
+                }
+            } else if (sessionData.state == 4) {
+                userStatusModal.style.display = 'block';
+                userStatus.innerHTML = 'Sorry, your session has expired.';
             }
         }
+
+        function showWheelBounds(r) {
+            var data = JSON.parse(r);
+            wheelBoundsWrapper.append(createWheelElement(data.RelativeBounds[0].Bounds));
+            wheelBoundsWrapper.append(createWheelElement(data.RelativeBounds[1].Bounds));
+        }
+
+        function createWheelElement(bounds) {
+            var wheel = document.createElement('img');
+            wheel.className = 'wheel marker';
+            wheel.style.left = (bounds.X * 100) + '%';
+            wheel.style.top = (bounds.Y * 100) + '%';
+            wheel.style.width = (bounds.Width * 100) + '%';
+            wheel.style.height = (bounds.Height * 100) + '%';
+
+            return wheel;
+        }
+
+        function getOrientation(image, orientation) {
+            image.onload = function(){
+                if (orientation == 6) {
+                        vehicleWrapper.style.cssText += 'transform: rotate(90deg) translate(12.3%);';
+                } else if (orientation == 8) {
+                        vehicleWrapper.style.cssText += 'transform: rotate(-90deg) translate(12.3%);';
+                } else if (orientation == 3) {
+                        vehicleWrapper.style.cssText += 'transform: rotate(180deg) translate(0%);';
+                }
+            }
+        }
+
     </script>
 }
 
