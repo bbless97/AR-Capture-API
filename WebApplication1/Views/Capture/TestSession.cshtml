@@ -2,7 +2,26 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<body>
+
+<div id="QR-wrap" style="text-align:center;">
+    <img style="width: 24%; display:inline-block;" id="QR-img" />
+    <div><a target="_blank" id="desktop-test-link">Test Link</a></div>
+</div>
+<div id="userStatusModal" style="background: rgba(0,0,0,0.5); position: absolute; top: 0; left: 0; height: 100%; width: 100%; display: none; text-align:center;">
+    <div id="statusWrapper" style="background: white; width: 370px; border-radius: 5px; height: 230px; top: 34vh; position: relative; text-align: center; display: inline-block;">
+        <img id="loader-gif" src="http://static.ridestyler.net/images/loaders/loader_radial_chaser_back_on_white_32.gif" style="padding: 5px;border-radius: 21px;background: white;opacity: 1;transition: opacity 300ms linear 0s;position: relative;display: block;width: 14%;top: 27%;margin: 0 auto;left: auto;z-index: 50;">
+        <div id="userStatus" style="display: block;top: 42%;margin: 0 auto;position: relative;color: black;font-weight: bold;"></div>
+    </div>
+</div>
+<div id="userImageWrap" style="text-align:center;">
+    <div id="vehicleWrapper" style="margin: 0px auto; position: relative; align-items: center; height: 100%; width: auto; background-color: white; display: inline-block;">
+        <img id="userImage" style="display: inline-block;" />
+        <div id="wheelBoundsWrapper" style="height: 100%; width: 100%; position: absolute; top: 0;"></div>
+    </div>
+</div>
+
+@section Styles
+{
     <style>
         .wheel.marker {
             -webkit-transform-origin: 50% 50%;
@@ -15,26 +34,10 @@
             border-radius: 50%;
         }
     </style>
-    <div id="QR-wrap" style="text-align:center;">
-        <img style="width: 24%; display:inline-block;" id="QR-img" />
-        <div><a target="_blank" id="desktop-test-link">Test Link</a></div>
-    </div>
-    <div id="userStatusModal" style="background: rgba(0,0,0,0.5); position: absolute; top: 0; left: 0; height: 100%; width: 100%; display: none; text-align:center;">
-        <div id="statusWrapper" style="background: white; width: 370px; border-radius: 5px; height: 230px; top: 34vh; position: relative; text-align: center; display: inline-block;">
-            <img id="loader-gif" src="http://static.ridestyler.net/images/loaders/loader_radial_chaser_back_on_white_32.gif" style="padding: 5px;border-radius: 21px;background: white;opacity: 1;transition: opacity 300ms linear 0s;position: relative;display: block;width: 14%;top: 27%;margin: 0 auto;left: auto;z-index: 50;">
-            <div id="userStatus" style="display: block;top: 42%;margin: 0 auto;position: relative;color: black;font-weight: bold;"></div>
-        </div>
-    </div>
-    <div id="userImageWrap" style="text-align:center;">
-        <div id="vehicleWrapper" style="margin: 0px auto; position: relative; align-items: center; height: 100%; width: auto; background-color: white; display: inline-block;">
-            <img id="userImage" style="display: inline-block;" />
-            <div id="wheelBoundsWrapper" style="height: 100%; width: 100%; position: absolute; top: 0;"></div>
-        </div>
-    </div>
-</body>
-</html>
+}
+
 @section Scripts
-{ 
+{
     <script>
         var sessionStartModel;
         var QRWrap = document.getElementById('QR-wrap');
@@ -47,7 +50,7 @@
         var vehicleWrapper = document.getElementById('vehicleWrapper');
 
         $.get('http://192.168.1.185:3000/Session/Start')
-            .done(function(data){
+            .done(function (data) {
                 sessionStartModel = data;
                 QRimg.src = "data:image/png;base64, " + sessionStartModel.captureQR;
                 testLink.href = sessionStartModel.captureURL;
@@ -59,7 +62,7 @@
             $.get('http://192.168.1.185:3000/Session/Get', { id: sessionStartModel.session.id })
                 .done(function (data) {
                     update(data);
-            });
+                });
         }
 
         function update(sessionData) {
@@ -67,7 +70,7 @@
                 userStatus.innerHTML = '';
             } else if (sessionData.state == 2) {
                 userStatusModal.style.display = 'block';
-                userStatus.innerHTML = 'Image being prepared...';
+                userStatus.innerHTML = 'Waiting for Upload...';
             } else if (sessionData.state == 3) {
                 userStatus.innerHTML = 'Image Loaded!';
                 clearInterval(myInterval);
@@ -83,6 +86,7 @@
             } else if (sessionData.state == 4) {
                 userStatusModal.style.display = 'block';
                 userStatus.innerHTML = 'Sorry, your session has expired.';
+                userImage.src = sessionData.imageData;
             }
         }
 
@@ -104,17 +108,18 @@
         }
 
         function getOrientation(image, orientation) {
-            image.onload = function(){
+            image.onload = function () {
                 if (orientation == 6) {
-                        vehicleWrapper.style.cssText += 'transform: rotate(90deg) translate(12.3%);';
+                    vehicleWrapper.style.cssText += 'transform: rotate(90deg) translate(12.3%);';
                 } else if (orientation == 8) {
-                        vehicleWrapper.style.cssText += 'transform: rotate(-90deg) translate(12.3%);';
+                    vehicleWrapper.style.cssText += 'transform: rotate(-90deg) translate(12.3%);';
                 } else if (orientation == 3) {
-                        vehicleWrapper.style.cssText += 'transform: rotate(180deg) translate(0%);';
+                    vehicleWrapper.style.cssText += 'transform: rotate(180deg) translate(0%);';
+                } else if (orientation == 0) {
+                    vehicleWrapper.style.cssText += 'transform: rotate(0deg);';
                 }
             }
         }
-
     </script>
 }
 

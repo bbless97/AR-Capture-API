@@ -1,10 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-    <div id="app">
+    <div id="app" class="getStarted">
         <div id="rs-logo-header">
-            <img src="~/images/rs-logo-white.svg" id="rs-logo" />
-            <span id="rs-logo-subtext">Capture API</span>
+            <img src="~/images/ridestyler-snap.png" id="rs-logo" />
         </div>
         <div id="mediaWrapper">
             <div id="vehicleWrapper"></div>
@@ -19,8 +18,13 @@
             <div id="confirm"><span>Please confirm the wheel locations were accurately located.</span><div class="controls"><button id="confirmButton"><i class="fas fa-check"></i></button><button id="retryButton"><i class="fas fa-sync-alt"></i></button></div></div>
         </div>
         <div id="completeWrapper">
-            <div id="completeCheck"><i class="fas fa-check-circle"></i></div>
+            <div id="completeCheck"><i class="fas fa-check"></i></div>
             <div id="completeMessage">Image has been uploaded to RideStyler.</div>
+        </div>
+        <div id="errorWrapper">
+            <div id="errorEx"><i class="fas fa-times"></i></div>
+            <div id="errorMessage"></div>
+            <button id="tryAgain">Try Again</button>
         </div>
     </div>
 

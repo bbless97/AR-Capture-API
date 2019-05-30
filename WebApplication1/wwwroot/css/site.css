@@ -3,8 +3,7 @@ for details on configuring this project to bundle and minify static web assets. 
 body, html {
     margin: 0;
     padding: 0;
-    /* font-family: Segoe UI; */
-    font-family: arial;
+    font-family: Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif;
     font-weight: 400;
     color: white;
 }
@@ -20,11 +19,11 @@ body, html {
     align-content: center;
     justify-content: center;
     overflow: scroll;
-    background: linear-gradient(.75turn, #ea1921, #ff4545);
+    background: white;
+    color: #333333;
 }
 
 #rs-logo-header {
-    background: rgb(50, 50, 50);
     height: 90px;
     display: flex;
     flex-direction: row;
@@ -33,14 +32,8 @@ body, html {
     justify-content: center;
     position: absolute;
     width: 100%;
-    z-index: 500;
+    z-index: 1;
     padding: 0 20px;
-    border-radius: 0px 0px 40px 40px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-    border: 5px solid white;
-    border-top: none;
-    border-right: none;
-    border-left: none;
 }
 
 #rs-logo {
@@ -95,19 +88,20 @@ body, html {
 #mediaWrapper {
     max-width: 700px;
     height: auto;
-    margin: 140px auto 0;
+    margin: 120px auto 0;
     position: relative;
     align-items: center;
     margin-bottom: 15px;
     padding: .3em;
     width: 95%;
     border-radius: 4px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    display: none;
 }
 
 #controlsWrapper {
     width: 100%;
-    height: 90%;
+    height: 100%;
     justify-content: center;
     display: none;
     flex-direction: column;
@@ -118,7 +112,7 @@ body, html {
     display: none;
     text-align: center;
     flex-direction: column;
-    height: 100%;
+    height: auto;
     align-content: center;
     align-items: center;
     justify-content: center;
@@ -127,21 +121,62 @@ body, html {
 #completeCheck {
     display: block;
     color: #323232;
-    margin-bottom: 10%;
-    text-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-    -webkit-text-stroke: white;
-    -webkit-text-stroke-width: 5px;
+    margin: 14em 0 2em;
 }
 
-    #completeCheck i {
-        font-size: 10em;
-    }
+#completeCheck i {
+    color: #008606;
+    font-size: 7em;
+}
 
 #completeMessage {
     display: inline-block;
     font-size: 1.5em;
-    font-weight: bold;
     text-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    padding: 0 10%;
+}
+
+#errorWrapper {
+    display: none;
+    text-align: center;
+    flex-direction: column;
+    height: auto;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+#errorEx {
+    display: block;
+    color: #ea1921;
+    margin: 14em 0 2em;
+}
+
+#errorEx i {
+    font-size: 7em;
+}
+
+#errorMessage {
+    display: inline-block;
+    font-size: 1.5em;
+    text-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    padding: 23px 10%;
+}
+
+#tryAgain {
+    display: inline-flex;
+    height: auto;
+    margin: 15px 37px;
+    cursor: pointer;
+    border: none;
+    border-radius: 30px;
+    background-color: #ea1921;
+    font-size: 1.3em;
+    text-transform: uppercase;
+    padding: 15px 25px;
+    color: white;
+    vertical-align: middle;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 }
 
 #head-text {
@@ -150,7 +185,6 @@ body, html {
     margin-bottom: 17%;
     font-weight: 100;
     font-size: 2em;
-    font-weight: 400;
 }
 
 #vehicleWrapper {
@@ -191,10 +225,10 @@ video {
 #uploadDescription {
     font-size: 2em;
     max-width: 700px;
-    font-weight: bold;
-    width: 90%;
-    margin: 200px auto 50px;
-    display: inline-block;
+    width: 100%;
+    display: block;
+    margin: 6em auto 50px;
+    padding: 0 .5em;
     text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -204,8 +238,8 @@ video {
     line-height: 56px;
     display: none;
     cursor: pointer;
-    background: #ffffff;
-    color: #ea1921;
+    background: #ea1921;
+    color: #ffffff;
     padding: 16px 16px;
     margin-bottom: 25px;
     font-size: 3.5em;
@@ -215,10 +249,9 @@ video {
     vertical-align: middle;
 }
 
-    #uploadLabel:hover, #cameraLabel:hover {
-        background-color: rgb(50, 50, 50);
-        color: white;
-    }
+#uploadLabel:hover, #cameraLabel:hover {
+    background-color: #8f0d12;
+}
 
 #uploadInput, #cameraInput {
     width: 0px;
@@ -241,7 +274,6 @@ video {
 
 #confirm span {
     padding: 0px 20px;
-    font-weight: bold;
     font-size: 1.2em;
     text-shadow: 0px 0px 10px rgba(0,0,0,0.1);
 }
@@ -259,7 +291,7 @@ video {
     cursor: pointer;
     border-radius: 50%;
     background-color: #323232;
-    border: 5px solid #ffffff;
+    border: none;
     font-size: 1em;
     text-transform: uppercase;
     padding: 24px;
@@ -280,7 +312,6 @@ video {
     text-transform: uppercase;
     padding: 24px;
     color: white;
-    border: 5px solid #ffffff;
     vertical-align: middle;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 }
@@ -308,6 +339,7 @@ video {
     text-align: center;
     justify-content: center;
     align-content: center;
+    z-index: 500;
 }
 
 #ar-modal-text {
@@ -324,4 +356,83 @@ video {
     width: 70%;
     position: relative;
     margin: 0 auto;
+}
+
+@media screen and (max-width: 1367px) and (orientation: landscape) {
+    #app {
+        width: 100%;
+        height: 100%;
+        flex-direction: row;
+    }
+
+    #app.confirmPage #mediaWrapper {
+        display: inline-flex;
+        width: 45%;
+        margin: 4% auto 15px;
+        vertical-align: top;
+        position: relative;
+        align-items: center;
+    }
+
+    #app.confirmPage #mediaWrapper.portrait {
+        width: 27% !important;
+    }
+
+    #app.confirmPage #controlsWrapper {
+        width: 50%;
+        height: auto !important;
+        justify-content: center;
+        margin: 4% auto 0px;
+        position: relative;
+        display: inline-flex !important;
+    }
+
+    #app.confirmPage #confirm span {
+        font-size: 1em;
+    }
+
+    #app.confirmPage #confirm {
+        margin: auto;
+    }
+
+    #app.confirmPage #confirmButton, #app.confirmPage #retryButton {
+        font-size: 0.7em;
+    }
+
+    #app.confirmPage #uploadDescription {
+        margin: 35px auto 30px;
+    }
+
+    #app.confirmPage #uploadLabel, #app.confirmPage #cameraLabel {
+        margin-bottom: 0;
+    }
+
+    #app #rs-logo-header {
+        position: relative;
+    }
+
+    #app.getStarted #uploadDescription {
+        margin: 4% auto 50px;
+        display: block;
+        width: 100%;
+    }
+
+    #app.getStarted #controlsWrapper {
+        width: 100%;
+        height: auto !important;
+        justify-content: center;
+        margin: 0% auto 0px;
+        position: relative;
+        display: block;
+    }
+
+    #app.getStarted #uploadLabel, #app.getStarted #cameraLabel {
+        width: 30%;
+        margin: 0 3%;
+        max-width: 450px;
+    }
+
+    #completeCheck, #errorEx {
+        margin: 0% 0 0%;
+    }
 }
