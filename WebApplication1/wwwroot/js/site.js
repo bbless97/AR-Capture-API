@@ -117,7 +117,6 @@ if (sessionId != null) {
     function getOrientation(image) {
         EXIF.getData(image, function () {
             var tags = EXIF.getAllTags(this);
-            mediaWrapper.style.background = '#323232';
             userImageOrientation = tags.Orientation;
 
             if (tags.Orientation == 6) {
@@ -229,7 +228,6 @@ if (sessionId != null) {
             vehicleWrapper.append(wheelWrapper);
             uploadLabel.style.display = 'none';
             uploadDescription.style.display = 'none';
-            mediaWrapper.style.backgroundColor = '#323232';
             mediaWrapper.style.display = 'inline-flex';
             controlsWrapper.style = '';
             controlsWrapper.style.display = 'block';
@@ -308,7 +306,7 @@ if (sessionId != null) {
     }
 
     function createWheelElement(bounds) {
-        var wheel = document.createElement('img');
+        var wheel = document.createElement('div');
         wheel.className = 'wheel marker';
         wheel.style.left = (bounds.X * 100) + '%';
         wheel.style.top = (bounds.Y * 100) + '%';
