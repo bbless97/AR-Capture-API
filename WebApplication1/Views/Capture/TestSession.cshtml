@@ -72,18 +72,21 @@
                 userStatusModal.style.display = 'block';
                 userStatus.innerHTML = 'Waiting for Upload...';
             } else if (sessionData.state == 3) {
-                userStatus.innerHTML = 'Image Loaded!';
-                clearInterval(myInterval);
-                if (sessionData.wheelBoundInformation != null) {
-                    showWheelBounds(sessionData.wheelBoundInformation);
-                }
-                if (sessionData.imageData != null) {
-                    userImage.src = sessionData.imageData;
-                    getOrientation(userImage, sessionData.imageOrientation)
-                    userStatusModal.style.display = 'none';
-                    QRWrap.style.display = 'none';
+                if (wheelBoundsWrapper.children.length == 0) {
+                    clearInterval(myInterval);
+                    userStatus.innerHTML = 'Image Loaded!';
+                    if (sessionData.wheelBoundInformation != null) {
+                        showWheelBounds(sessionData.wheelBoundInformation);
+                    }
+                    if (sessionData.imageData != null) {
+                        userImage.src = sessionData.imageData;
+                        getOrientation(userImage, sessionData.imageOrientation)
+                        userStatusModal.style.display = 'none';
+                        QRWrap.style.display = 'none';
+                    }
                 }
             } else if (sessionData.state == 4) {
+                clearInterval(myInterval);
                 userStatusModal.style.display = 'block';
                 userStatus.innerHTML = 'Sorry, your session has expired.';
                 userImage.src = sessionData.imageData;

@@ -252,6 +252,7 @@ if (sessionId != null) {
         if (buttonId == 'tryAgain') {
             controlsWrapper.style = '';
             controlsWrapper.style.display = 'block';
+            confirmWrapper.style.display = 'none';
         } else {
             confirmWrapper.style.display = 'none';
         }
