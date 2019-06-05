@@ -19,7 +19,6 @@ namespace ARCaptureAPI.Models
         public DateTime Timestamp = new DateTime();
         public Guid ID;
         public string ImageData;
-        public int ImageOrientation;
         public string WheelBoundInformation;
     }
 }

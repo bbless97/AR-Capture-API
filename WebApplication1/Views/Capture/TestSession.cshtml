@@ -49,7 +49,7 @@
         var wheelBoundsWrapper = document.getElementById('wheelBoundsWrapper');
         var vehicleWrapper = document.getElementById('vehicleWrapper');
 
-        $.get('http://192.168.1.185:3000/Session/Start')
+        $.get('http://localhost:50199/Session/Start')
             .done(function (data) {
                 sessionStartModel = data;
                 QRimg.src = "data:image/png;base64, " + sessionStartModel.captureQR;
@@ -59,7 +59,7 @@
         var myInterval = setInterval(checkSessionStatus, 3000);
 
         function checkSessionStatus() {
-            $.get('http://192.168.1.185:3000/Session/Get', { id: sessionStartModel.session.id })
+            $.get('http://localhost:50199/Session/Get', { id: sessionStartModel.session.id })
                 .done(function (data) {
                     update(data);
                 });
@@ -80,7 +80,6 @@
                     }
                     if (sessionData.imageData != null) {
                         userImage.src = sessionData.imageData;
-                        getOrientation(userImage, sessionData.imageOrientation)
                         userStatusModal.style.display = 'none';
                         QRWrap.style.display = 'none';
                     }
@@ -110,19 +109,6 @@
             return wheel;
         }
 
-        function getOrientation(image, orientation) {
-            image.onload = function () {
-                if (orientation == 6) {
-                    vehicleWrapper.style.cssText += 'transform: rotate(90deg) translate(12.3%);';
-                } else if (orientation == 8) {
-                    vehicleWrapper.style.cssText += 'transform: rotate(-90deg) translate(12.3%);';
-                } else if (orientation == 3) {
-                    vehicleWrapper.style.cssText += 'transform: rotate(180deg) translate(0%);';
-                } else if (orientation == 0) {
-                    vehicleWrapper.style.cssText += 'transform: rotate(0deg);';
-                }
-            }
-        }
     </script>
 }
 

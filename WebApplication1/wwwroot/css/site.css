@@ -90,7 +90,6 @@ body, html {
     height: auto;
     margin: 120px auto 0;
     position: relative;
-    align-items: center;
     margin-bottom: 15px;
     padding: 0.7em;
     width: 95%;
@@ -373,7 +372,6 @@ video {
         margin: 3% auto 1%;
         vertical-align: top;
         position: relative;
-        align-items: center;
         max-width: 320px;
     }
 

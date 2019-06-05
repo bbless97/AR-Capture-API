@@ -37,16 +37,16 @@ if (sessionId != null) {
     }
 
     function scanStarted() {
-        $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: sessionId })
+        $.get("http://192.168.1.115:3000/Session/ScanStarted", { id: sessionId })
             .done(function (data) {
                 return;
             });
     }
 
     function checkSessionStatus() {
-        $.get('http://192.168.1.185:3000/Session/Get', { id: sessionId })
+        $.get('http://192.168.1.115:3000/Session/Get', { id: sessionId })
             .done(function (data) {
-                if (data.imageData != null) {
+                if (data == null || data.imageData != null) {
                     errorHandling('Session is Invalid');
                     tryAgainButton.style.display = 'none';
                     $('#controlsWrapper').css('display', 'none');
@@ -59,11 +59,11 @@ if (sessionId != null) {
     }
 
     function sessionEnd() {
-        $.get("http://192.168.1.185:3000/Session/End", { id: sessionId });
+        $.get("http://192.168.1.115:3000/Session/End", { id: sessionId });
     }
 
     function sessionUploadImage() {
-        $.post("http://192.168.1.185:3000/Session/Upload", { id: sessionId, imageData: imageURL, imageOrientation: userImageOrientation, wheelData: wheelBounds })
+        $.post("http://192.168.1.115:3000/Session/Upload", { id: sessionId, imageData: imageURL, wheelData: wheelBounds })
             .done(function (data) {
                 $('#loader').css('display', 'none');
                 if (data == true) {
@@ -97,7 +97,7 @@ if (sessionId != null) {
         xhr.onload = function () {
             var response = JSON.parse(xhr.response);
             if (response.Success === false) {
-                errorHandling("Image is not valid. Please try again.");
+                ("Image is not valid. Please try again.");
                 appWrap.classList.add('getStarted');
                 appWrap.classList.remove('confirmPage');
                 $('#loader').css('display', 'none');
@@ -116,102 +116,109 @@ if (sessionId != null) {
 
     function getOrientation(image) {
         EXIF.getData(image, function () {
+            var canvasOrientation;
             var tags = EXIF.getAllTags(this);
             userImageOrientation = tags.Orientation;
 
             if (tags.Orientation == 6) {
                 if (ios) {
-                    mediaWrapper.style.cssText += '-webkit-transform: rotate(0deg);'
+                    canvasOrientation = 90;
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
                     controlsWrapper.style.display = 'inline-flex';
                     controlsWrapper.style.position = 'relative';
                     controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
-                    $(wheelWrapper).css('transform-origin', 'center');
-                    wheelWrapper.style.cssText = 'transform: rotate(90deg) translate(12.5%, 16.6%);';
-                    $(wheelWrapper).css('width', (image.height + "px"));
-                    $(wheelWrapper).css('height', (image.width + "px"));
                     mediaWrapper.classList.add('portrait');
                 } else {
-                    mediaWrapper.style.cssText += 'transform: rotate(90deg) translate(12.3%);';
-                    mediaWrapper.style.marginBottom = '25%';
+                    canvasOrientation = 90;
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '100%';
                     mediaWrapper.classList.add('portrait');
                 }
             } else if (tags.Orientation == 8) {
                 if (ios) {
-                    mediaWrapper.style.cssText += '-webkit-transform: rotate(0deg);';
+                    canvasOrientation = -90;
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
-                    mediaWrapper.style.marginBottom = '25%';
                     controlsWrapper.style.position = 'relative';
                     controlsWrapper.style.top = (mediaWrapper / 2.5) + 'px';
                     mediaWrapper.classList.add('portrait');
                 } else {
-                    mediaWrapper.style.cssText += 'transform: rotate(-90deg) translate(12.3%);';
-                    mediaWrapper.style.marginBottom = '25%';
+                    canvasOrientation = -90;
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '100%';
                     mediaWrapper.classList.add('portrait');
                 }
             } else if (tags.Orientation == 3) {
                 if (ios) {
-                    mediaWrapper.style.cssText += '-webkit-transform: rotate(0deg);';
+                    canvasOrientation = 180;
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.style.width = '97%';
-                    wheelWrapper.style.cssText = 'transform: rotate(180deg)';
                     mediaWrapper.classList.remove('portrait');
                 } else {
-                    mediaWrapper.style.cssText += 'transform: rotate(180deg) translate(0%);';
+                    canvasOrientation = 180;
                     mediaWrapper.style.height = 'auto';
                     mediaWrapper.classList.remove('portrait');
                 }
             } else if (tags.Orientation == 1 || tags.Orientation == undefined) {
-                wheelWrapper.style.cssText = 'transform: rotate(0deg)';
                 mediaWrapper.classList.remove('portrait');
             }
+
+            compress(vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight, canvasOrientation);
         });
     }
 
-    function compress(f, w, h) {
-        var width = 485;
+    function compress(w, h, canvasO) {
+        var f = document.getElementById('vehicleImage');
+        console.log(canvasO)
+        var width = 500;
         var height = parseInt(h * width / w);
-        var reader = new FileReader();
-        reader.readAsDataURL(f);
-        reader.onload = function (event) {
-            var img = new Image();
-            img.src = event.target.result;
-            img.width = width;
-            img.height = height;
-            img.crossOrigin = "Anonymous";
-            img.onload = function () {
-                var canvas = document.createElement('canvas');
-                if (ios && h > w) {
-                    canvas.width = height;
-                    canvas.height = width;
-                    canvas.style.width = height + 'px';
-                    canvas.style.height = width + 'px';
-                    var ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, img.height, img.width);
-                } else {
-                    canvas.width = width;
-                    canvas.height = height;
-                    canvas.style.width = width + 'px';
-                    canvas.style.height = height + 'px';
-                    var ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                }
-                imageURL = canvas.toDataURL();
-                ctx.canvas.toBlob(function (blob) {
-                    if (blob.size < f.size) {
-                        upload(blob);
-                    } else {
-                        upload(f);
-                    }
-                }, '*', 0);
-            };
-        };
+        var canvas = document.createElement('canvas');
+        if (canvasO != 180 && canvasO != undefined && !ios) {
+            canvas.width = height;
+            canvas.height = width;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            var ctx = canvas.getContext('2d');
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate(canvasO * Math.PI / 180);
+            ctx.drawImage(f, width / 2.67 * (-1), height / 3 * (-1), canvas.height, canvas.width);
+        } else if (canvasO != 180 && canvasO != undefined && ios) {
+            canvas.width = height;
+            canvas.height = width;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            var ctx = canvas.getContext('2d');
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate(canvasO * Math.PI / 180);
+            ctx.drawImage(f, width / 1.6 * (-1), height / 2 * (-1), canvas.height, canvas.width);
+            alert(width + ' ' + height + ' ' + canvasO)
+        } else if (canvasO != 90 && canvasO != undefined) {
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            var ctx = canvas.getContext('2d');
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate(canvasO * Math.PI / 180);
+            ctx.drawImage(f, width / 2 * (-1), height / 2 * (-1), canvas.width, canvas.height);
+        } else {
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+        }
+        imageURL = canvas.toDataURL();
+        console.log(imageURL);
+        var vehicleImage = document.getElementById('vehicleImage');
+        vehicleWrapper.replaceChild(canvas, vehicleImage);
+
+        ctx.canvas.toBlob(function (blob) {
+            upload(blob);
+        }, '*', 0);
+
     }
 
     function convertToImage(fileInput) {
@@ -219,6 +226,8 @@ if (sessionId != null) {
         var image = new Image();
         image.src = URL.createObjectURL(file);
         image.id = 'vehicleImage';
+        image.crossOrigin = "Anonymous";
+
         image.onload = function () {
 
             $('#loader').css('display', 'block');
@@ -228,11 +237,9 @@ if (sessionId != null) {
             vehicleWrapper.append(wheelWrapper);
             uploadLabel.style.display = 'none';
             uploadDescription.style.display = 'none';
-            mediaWrapper.style.display = 'inline-flex';
             controlsWrapper.style = '';
             controlsWrapper.style.display = 'block';
 
-            compress(file, vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight);
             getOrientation(image);
 
             if (cameraLabel) {
@@ -242,6 +249,7 @@ if (sessionId != null) {
                 uploadLabel.style.display = 'none';
             }
 
+            mediaWrapper.style.display = 'inline-flex';
             $('#mediaWrapper').show();
         }
     }
@@ -259,7 +267,6 @@ if (sessionId != null) {
         vehicleWrapper.innerHTML = '';
         vehicleWrapper.style = '';
         wheelWrapper.innerHTML = '';
-        wheelWrapper.style = '';
         mediaWrapper.style = '';
         mediaWrapper.style.display = 'none';
         controlsWrapper.style.height = '100%';
@@ -336,16 +343,6 @@ if (sessionId != null) {
             }
         });
     }
-
-    var mql = window.matchMedia("(orientation: portrait)");
-
-    mql.addListener(function () {
-        var image = document.getElementById('vehicleImage');
-        if (ios && image && mediaWrapper.classList.contains('portrait')) {
-            $(wheelWrapper).css('width', (image.height + "px"));
-            $(wheelWrapper).css('height', (image.width + "px"));
-        }
-    });
 
     confirmButton.addEventListener('click', function () {
         confirm();
