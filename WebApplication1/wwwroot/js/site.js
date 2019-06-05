@@ -180,7 +180,7 @@ if (sessionId != null) {
         imageURL = canvas.toDataURL();
         var vehicleImage = document.getElementById('vehicleImage');
 
-        if (!ios && canvasO != 90) {
+        if (!(ios && canvasO == 90)) {
             vehicleWrapper.replaceChild(canvas, vehicleImage);
         }
 
