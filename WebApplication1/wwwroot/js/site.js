@@ -37,14 +37,14 @@ if (sessionId != null) {
     }
 
     function scanStarted() {
-        $.get("http://192.168.1.115:3000/Session/ScanStarted", { id: sessionId })
+        $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: sessionId })
             .done(function (data) {
                 return;
             });
     }
 
     function checkSessionStatus() {
-        $.get('http://192.168.1.115:3000/Session/Get', { id: sessionId })
+        $.get('http://192.168.1.185:3000/Session/Get', { id: sessionId })
             .done(function (data) {
                 if (data == null || data.imageData != null) {
                     errorHandling('Session is Invalid');
@@ -59,11 +59,11 @@ if (sessionId != null) {
     }
 
     function sessionEnd() {
-        $.get("http://192.168.1.115:3000/Session/End", { id: sessionId });
+        $.get("http://192.168.1.185:3000/Session/End", { id: sessionId });
     }
 
     function sessionUploadImage() {
-        $.post("http://192.168.1.115:3000/Session/Upload", { id: sessionId, imageData: imageURL, wheelData: wheelBounds })
+        $.post("http://192.168.1.185:3000/Session/Upload", { id: sessionId, imageData: imageURL, wheelData: wheelBounds })
             .done(function (data) {
                 $('#loader').css('display', 'none');
                 if (data == true) {
@@ -121,47 +121,11 @@ if (sessionId != null) {
             userImageOrientation = tags.Orientation;
 
             if (tags.Orientation == 6) {
-                if (ios) {
-                    canvasOrientation = 90;
-                    mediaWrapper.style.height = 'auto';
-                    mediaWrapper.style.width = '97%';
-                    controlsWrapper.style.display = 'inline-flex';
-                    controlsWrapper.style.position = 'relative';
-                    controlsWrapper.style.top = (mediaWrapper / 2) + 'px';
-                    mediaWrapper.classList.add('portrait');
-                } else {
-                    canvasOrientation = 90;
-                    mediaWrapper.style.height = 'auto';
-                    mediaWrapper.style.width = '100%';
-                    mediaWrapper.classList.add('portrait');
-                }
+                canvasOrientation = 90;
             } else if (tags.Orientation == 8) {
-                if (ios) {
-                    canvasOrientation = -90;
-                    mediaWrapper.style.height = 'auto';
-                    mediaWrapper.style.width = '97%';
-                    controlsWrapper.style.position = 'relative';
-                    controlsWrapper.style.top = (mediaWrapper / 2.5) + 'px';
-                    mediaWrapper.classList.add('portrait');
-                } else {
-                    canvasOrientation = -90;
-                    mediaWrapper.style.height = 'auto';
-                    mediaWrapper.style.width = '100%';
-                    mediaWrapper.classList.add('portrait');
-                }
+                canvasOrientation = -90;
             } else if (tags.Orientation == 3) {
-                if (ios) {
-                    canvasOrientation = 180;
-                    mediaWrapper.style.height = 'auto';
-                    mediaWrapper.style.width = '97%';
-                    mediaWrapper.classList.remove('portrait');
-                } else {
-                    canvasOrientation = 180;
-                    mediaWrapper.style.height = 'auto';
-                    mediaWrapper.classList.remove('portrait');
-                }
-            } else if (tags.Orientation == 1 || tags.Orientation == undefined) {
-                mediaWrapper.classList.remove('portrait');
+                canvasOrientation = 180;
             }
 
             compress(vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight, canvasOrientation);
@@ -169,7 +133,7 @@ if (sessionId != null) {
     }
 
     function compress(w, h, canvasO) {
-        var f = document.getElementById('vehicleImage');
+        var image = document.getElementById('vehicleImage');
         console.log(canvasO)
         var width = 500;
         var height = parseInt(h * width / w);
@@ -182,17 +146,16 @@ if (sessionId != null) {
             var ctx = canvas.getContext('2d');
             ctx.translate(width / 2, height / 2);
             ctx.rotate(canvasO * Math.PI / 180);
-            ctx.drawImage(f, width / 2.67 * (-1), height / 3 * (-1), canvas.height, canvas.width);
+            ctx.drawImage(image, width / 2.67 * (-1), height / 3 * (-1), canvas.height, canvas.width);
         } else if (canvasO != 180 && canvasO != undefined && ios) {
-            canvas.width = height;
-            canvas.height = width;
+            canvas.width = width;
+            canvas.height = height;
             canvas.style.width = '100%';
             canvas.style.height = '100%';
             var ctx = canvas.getContext('2d');
             ctx.translate(width / 2, height / 2);
             ctx.rotate(canvasO * Math.PI / 180);
-            ctx.drawImage(f, width / 1.6 * (-1), height / 2 * (-1), canvas.height, canvas.width);
-            alert(width + ' ' + height + ' ' + canvasO)
+            ctx.drawImage(image, width / 1.5 * (-1), height / 2.67 * (-1), canvas.width, canvas.height);
         } else if (canvasO != 90 && canvasO != undefined) {
             canvas.width = width;
             canvas.height = height;
@@ -201,18 +164,19 @@ if (sessionId != null) {
             var ctx = canvas.getContext('2d');
             ctx.translate(width / 2, height / 2);
             ctx.rotate(canvasO * Math.PI / 180);
-            ctx.drawImage(f, width / 2 * (-1), height / 2 * (-1), canvas.width, canvas.height);
+            ctx.drawImage(image, width / 2 * (-1), height / 2 * (-1), canvas.width, canvas.height);
         } else {
             canvas.width = width;
             canvas.height = height;
             canvas.style.width = '100%';
             canvas.style.height = '100%';
             var ctx = canvas.getContext('2d');
-            ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
         }
         imageURL = canvas.toDataURL();
         console.log(imageURL);
         var vehicleImage = document.getElementById('vehicleImage');
+        //app.append(canvas)
         vehicleWrapper.replaceChild(canvas, vehicleImage);
 
         ctx.canvas.toBlob(function (blob) {
@@ -240,7 +204,6 @@ if (sessionId != null) {
             controlsWrapper.style = '';
             controlsWrapper.style.display = 'block';
 
-            getOrientation(image);
 
             if (cameraLabel) {
                 cameraLabel.style.display = 'none';
@@ -248,6 +211,9 @@ if (sessionId != null) {
             } else {
                 uploadLabel.style.display = 'none';
             }
+
+            getOrientation(image);
+
 
             mediaWrapper.style.display = 'inline-flex';
             $('#mediaWrapper').show();
@@ -307,9 +273,9 @@ if (sessionId != null) {
             confirmWrapper.style.display = 'inline-flex';
             controlsWrapper.style.height = 'auto';
         } else {
-            errorHandling("Could not detect wheels. Try another image.");
-            appWrap.classList.add('getStarted');
-            appWrap.classList.remove('confirmPage');
+            //errorHandling("Could not detect wheels. Try another image.");
+            //appWrap.classList.add('getStarted');
+            //appWrap.classList.remove('confirmPage');
         }
     }
 
