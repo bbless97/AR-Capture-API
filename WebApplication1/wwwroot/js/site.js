@@ -134,8 +134,12 @@ if (sessionId != null) {
 
     function compress(w, h, canvasO) {
         var image = document.getElementById('vehicleImage');
-        console.log(canvasO)
-        var width = 500;
+        var width = 700;
+        if (canvasO == 90 || canvas == -90) {
+            mediaWrapper.classList.add('portrait');
+        } else {
+            mediaWrapper.classList.remove('portrait');
+        }
         var height = parseInt(h * width / w);
         var canvas = document.createElement('canvas');
         if (canvasO != 180 && canvasO != undefined && !ios) {
@@ -174,10 +178,11 @@ if (sessionId != null) {
             ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
         }
         imageURL = canvas.toDataURL();
-        console.log(imageURL);
         var vehicleImage = document.getElementById('vehicleImage');
-        //app.append(canvas)
-        vehicleWrapper.replaceChild(canvas, vehicleImage);
+
+        if (!ios && canvasO != 90) {
+            vehicleWrapper.replaceChild(canvas, vehicleImage);
+        }
 
         ctx.canvas.toBlob(function (blob) {
             upload(blob);
@@ -273,9 +278,9 @@ if (sessionId != null) {
             confirmWrapper.style.display = 'inline-flex';
             controlsWrapper.style.height = 'auto';
         } else {
-            //errorHandling("Could not detect wheels. Try another image.");
-            //appWrap.classList.add('getStarted');
-            //appWrap.classList.remove('confirmPage');
+            errorHandling("Could not detect wheels. Try another image.");
+            appWrap.classList.add('getStarted');
+            appWrap.classList.remove('confirmPage');
         }
     }
 

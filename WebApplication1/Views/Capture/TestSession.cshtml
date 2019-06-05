@@ -52,7 +52,7 @@
         $.get('http://localhost:50199/Session/Start')
             .done(function (data) {
                 sessionStartModel = data;
-                QRimg.src = "data:image/png;base64, " + sessionStartModel.captureQR;
+                QRimg.src = sessionStartModel.captureQR;
                 testLink.href = sessionStartModel.captureURL;
             });
 

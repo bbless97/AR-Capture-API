@@ -32,7 +32,7 @@ namespace ARCaptureAPI.Controllers
 
             //create new session start model, with session model and QR string
             SessionStartModel sessionStartModel = new SessionStartModel();
-            sessionStartModel.CaptureQR = qrCodeImageAsBase64;
+            sessionStartModel.CaptureQR = "data:image/png;base64," + qrCodeImageAsBase64;
             sessionStartModel.CaptureURL = sessionURL;
             sessionStartModel.Session = startSession;
 
