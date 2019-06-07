@@ -56,7 +56,7 @@
                 testLink.href = sessionStartModel.captureURL;
             });
 
-        var myInterval = setInterval(checkSessionStatus, 3000);
+        var myInterval = setInterval(checkSessionStatus, 500);
 
         function checkSessionStatus() {
             $.get('http://localhost:50199/Session/Get', { id: sessionStartModel.session.id })
