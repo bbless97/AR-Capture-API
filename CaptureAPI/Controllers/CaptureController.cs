@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using ARCaptureAPI.Models;
+using CaptureAPI.Models;
 
-namespace ARCaptureAPI.Controllers
+namespace CaptureAPI.Controllers
 {
     public class CaptureController : Controller
     {

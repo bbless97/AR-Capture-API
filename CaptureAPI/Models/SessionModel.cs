@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ARCaptureAPI.Models
+namespace CaptureAPI.Models
 {
     public enum SessionState
     {

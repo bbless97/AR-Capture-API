@@ -1,6 +1,6 @@
 using System;
 
-namespace ARCaptureAPI.Models
+namespace CaptureAPI.Models
 {
     public class ErrorViewModel
     {

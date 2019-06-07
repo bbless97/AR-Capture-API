@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ARCaptureAPI.Models;
+using CaptureAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
 
-namespace ARCaptureAPI.Controllers
+namespace CaptureAPI.Controllers
 {
     public class SessionController : Controller
     {
