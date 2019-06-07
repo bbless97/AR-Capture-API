@@ -6,16 +6,25 @@
             <img src="~/images/ridestyler-snap.png" id="rs-logo" />
         </div>
         <div id="mediaWrapper">
-            <div id="vehicleWrapper"></div>
+            <div id="vehicleWrapper">
+                <img id="vehicleImage" />
+                <div id="wheelWrapper"></div>
+            </div>
         </div>
         <div id="loader"><img id="loader-gif" src="http://static.ridestyler.net/images/loaders/loader_radial_chaser_back_on_white_32.gif"></div>
-        <div id="controlsWrapper">
+        <div id="promptWrapper">
             <div id="uploadDescription"></div>
             <input type="file" name="uploadInput" id="uploadInput">
             <label for="cameraInput" id="cameraLabel"><i class="fas fa-camera"></i></label>
             <label for="uploadInput" id="uploadLabel"><i class="fas fa-images"></i></label>
             <input type="file" accept="image/*" capture="camera" name="cameraInput" id="cameraInput">
-            <div id="confirm"><span>Please confirm the wheel locations were accurately located.</span><div class="controls"><button id="confirmButton"><i class="fas fa-check"></i></button><button id="retryButton"><i class="fas fa-sync-alt"></i></button></div></div>
+        </div>
+        <div id="controlsWrapper">
+            <span>Please confirm the wheel locations were accurately located.</span>
+            <div class="controls">
+                <button id="confirmButton"><i class="fas fa-check"></i></button>
+                <button id="retryButton"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
         <div id="completeWrapper">
             <div id="completeCheck"><i class="fas fa-check"></i></div>

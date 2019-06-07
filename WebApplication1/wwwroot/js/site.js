@@ -10,31 +10,22 @@ if (sessionId != null) {
     var promptCaptureSupport = testInput.capture != undefined;
     var mediaWrapper = document.getElementById('mediaWrapper');
     var controlsWrapper = document.getElementById('controlsWrapper');
+    var promptWrapper = document.getElementById('promptWrapper');
     var vehicleWrapper = document.getElementById('vehicleWrapper');
+    var vehicleImage = document.getElementById('vehicleImage');
     var uploadInput = document.getElementById('uploadInput');
     var uploadLabel = document.getElementById('uploadLabel');
     var cameraLabel = document.getElementById('cameraLabel');
     var cameraInput = document.getElementById('cameraInput');
-    var confirmWrapper = document.getElementById('confirm');
+    var loader = document.getElementById('loader');
     var retryButton = document.getElementById('retryButton');
     var tryAgain = document.getElementById('tryAgain');
     var confirmButton = document.getElementById('confirmButton');
     var completeWrapper = document.getElementById('completeWrapper');
-    var wheelWrapper = document.createElement('div'); wheelWrapper.id = 'wheelWrapper';
+    var wheelWrapper = document.getElementById('wheelWrapper');
     var uploadDescription = document.getElementById('uploadDescription');
-    var imageURL;
-    var userImageOrientation;
+    var ImageUrl;
     var wheelBounds;
-
-    if (promptCaptureSupport != false) {
-        $(cameraLabel).css('display', 'inline-block');
-        $(uploadLabel).css('display', 'inline-block');
-        $(uploadDescription).html('Capture or Upload a photo of your vehicle.');
-    } else {
-        $(uploadLabel).css('display', 'inline-block');
-        $(uploadDescription).html('Upload a photo of your vehicle.');
-        $(cameraLabel).hide();
-    }
 
     function scanStarted() {
         $.get("http://192.168.1.185:3000/Session/ScanStarted", { id: sessionId })
@@ -49,11 +40,10 @@ if (sessionId != null) {
                 if (data == null || data.imageData != null) {
                     errorHandling('Session is Invalid');
                     tryAgainButton.style.display = 'none';
-                    $('#controlsWrapper').css('display', 'none');
                 } else {
                     scanStarted();
-                    $('#mediaWrapper').css('display', 'none');
-                    $('#controlsWrapper').css('display', 'block');
+                    mediaWrapper.style.display = 'none';
+                    promptUser();
                 }
             });
     }
@@ -63,9 +53,9 @@ if (sessionId != null) {
     }
 
     function sessionUploadImage() {
-        $.post("http://192.168.1.185:3000/Session/Upload", { id: sessionId, imageData: imageURL, wheelData: wheelBounds })
+        $.post("http://192.168.1.185:3000/Session/Upload", { id: sessionId, imageData: ImageUrl, wheelData: wheelBounds })
             .done(function (data) {
-                $('#loader').css('display', 'none');
+                loader.style.display = 'none';
                 if (data == true) {
                     completeWrapper.style.display = 'flex';
                     controlsWrapper.style.display = 'none';
@@ -79,6 +69,137 @@ if (sessionId != null) {
             });
     }
 
+    // Prompt user to upload or take an image from phone
+    function promptUser() {
+        if (promptCaptureSupport != false) {
+            promptWrapper.style.display = 'inline-block';
+            cameraLabel.style.display = 'inline-block';
+            uploadLabel.style.display = 'inline-block';
+            uploadDescription.innerHTML = 'Capture or Upload a photo of your vehicle.';
+        } else {
+            promptWrapper.style.display = 'inline-block';
+            uploadLabel.style.display = 'inline-block';
+            cameraLabel.style.display = 'none';
+            uploadDescription.innerHTML = 'Upload a photo of your vehicle.';
+        }
+        uploadInput.value = null;
+        cameraInput.value = null;
+    }
+
+    // Resize image, rotate if necessary
+    function prepareCanvas(image, fw, fh, sw, sh, rotation) {
+        if (rotation == 90 || rotation == -90) {
+            var tempWidth = sw;
+            sw = sh;
+            sh = tempWidth;
+            mediaWrapper.classList.add('portrait');
+        } else {
+            mediaWrapper.classList.remove('portrait');
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = sw;
+        canvas.height = sh;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, fw, fh, 0, 0, sw, sh);
+        console.log(image.width);
+        console.log(image.height);
+        return canvas
+    }
+
+    // Convert file to image
+    function convertToImage(fileInput) {
+        var file = fileInput.files[0];
+
+        var image = new Image();
+        image.src = URL.createObjectURL(file);
+        image.crossOrigin = "Anonymous";
+
+        image.onload = function () {
+            prepareImage(image);
+        }
+    }
+
+    // Get images orientation at the time of capture
+    function prepareImage(img) {
+        EXIF.getData(img, function () {
+            var rotation = 0;
+            var orientation = EXIF.getTag(this, 'Orientation');
+
+            if (orientation == 6) {
+                rotation = 90;
+            } else if (orientation == 8) {
+                rotation = -90;
+            } else if (orientation == 3) {
+                rotation = 180;
+            }
+
+            processImage(img, rotation);
+        });
+    }
+
+    // Scale image to a fixed size to prevent large images being uploaded
+    function processImage(img, rotation) {
+        var maxRes = 1024;
+        var scale = 1;
+        var maxDimension = Math.max(img.width, img.height);
+
+        // Compute scale if needed
+        if (maxRes < maxDimension) {
+            scale = maxRes / maxDimension;
+        }
+
+        // Scale dimensions to fit in max resolution
+        var sw = img.width * scale;
+        var sh = img.height * scale;
+
+        var canvas = createScaledImageCanvas(img, rotation, sw, sh);
+
+        // Storing image to display after wheel bounds confirm
+        ImageUrl = canvas.toDataURL('image/jpeg', 1);
+
+        // Convert canvas to blob for upload
+        convertCanvasToBlob(canvas);
+
+    }
+
+    // Create image canvas based off of scale
+    function createScaledImageCanvas(img, rotation, sw, sh) {
+
+        var canvas = document.createElement('canvas');
+
+        // Rotate dimensions if needed
+        var flipped = false;
+        if (rotation == 90 || rotation == -90) {
+            flipped = true;
+            canvas.width = sh;
+            canvas.height = sw;
+        } else {
+            canvas.width = sw;
+            canvas.height = sh;
+        }
+
+        var ctx = canvas.getContext('2d');
+
+        if (flipped) {
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(rotation * Math.PI / 180);
+
+            ctx.drawImage(img, -canvas.height / 2, -canvas.width / 2, canvas.height, canvas.width);
+        } else {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
+
+        return canvas
+    }
+
+    // Convert canvas to blob for upload
+    function convertCanvasToBlob(canvas) {
+        canvas.toBlob(function (blob) {
+            upload(blob);
+        }, '*', 0);
+    }
+
+    // Upload file to get wheel bound info
     function upload(file) {
         var formData = new FormData();
         formData.append('imageData', file, 'rssImageUpload');
@@ -87,196 +208,43 @@ if (sessionId != null) {
         xhr.open('POST', 'http://api-alpha.ridestyler.net/Imaging/ExtractWheelInformation');
 
         xhr.upload.addEventListener("progress", function (evt) {
-            $('#loader').css('display', 'block');
+            loader.style.display = 'block';
         }, false);
 
         xhr.addEventListener("progress", function () {
-            $('#loader').css('display', 'block');
+            loader.style.display = 'block';
         }, false);
 
         xhr.onload = function () {
             var response = JSON.parse(xhr.response);
             if (response.Success === false) {
-                ("Image is not valid. Please try again.");
+                errorHandling("Image is not valid. Please try again.");
                 appWrap.classList.add('getStarted');
                 appWrap.classList.remove('confirmPage');
-                $('#loader').css('display', 'none');
+                loader.style.display = 'none';
             } else {
                 appWrap.classList.add('confirmPage');
                 appWrap.classList.remove('getStarted');
-                showVehicleViewport(response.Result);
+                displayVehicle(response.Result);
                 wheelBounds = JSON.stringify(response.Result);
-
-                $('#loader').hide();
+                loader.style.display = 'none';
             }
         }
 
         xhr.send(formData);
     }
 
-    function getOrientation(image) {
-        EXIF.getData(image, function () {
-            var canvasOrientation;
-            var tags = EXIF.getAllTags(this);
-            userImageOrientation = tags.Orientation;
-
-            if (tags.Orientation == 6) {
-                canvasOrientation = 90;
-            } else if (tags.Orientation == 8) {
-                canvasOrientation = -90;
-            } else if (tags.Orientation == 3) {
-                canvasOrientation = 180;
-            }
-
-            compress(vehicleWrapper.offsetWidth, vehicleWrapper.offsetHeight, canvasOrientation);
-        });
-    }
-
-    function compress(w, h, canvasO) {
-        var image = document.getElementById('vehicleImage');
-        var width = 700;
-        if (canvasO == 90 || canvas == -90) {
-            mediaWrapper.classList.add('portrait');
-        } else {
-            mediaWrapper.classList.remove('portrait');
-        }
-        var height = parseInt(h * width / w);
-        var canvas = document.createElement('canvas');
-        if (canvasO != 180 && canvasO != undefined && !ios) {
-            canvas.width = height;
-            canvas.height = width;
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            var ctx = canvas.getContext('2d');
-            ctx.translate(width / 2, height / 2);
-            ctx.rotate(canvasO * Math.PI / 180);
-            ctx.drawImage(image, width / 2.67 * (-1), height / 3 * (-1), canvas.height, canvas.width);
-        } else if (canvasO != 180 && canvasO != undefined && ios) {
-            canvas.width = width;
-            canvas.height = height;
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            var ctx = canvas.getContext('2d');
-            ctx.translate(width / 2, height / 2);
-            ctx.rotate(canvasO * Math.PI / 180);
-            ctx.drawImage(image, width / 1.5 * (-1), height / 2.67 * (-1), canvas.width, canvas.height);
-        } else if (canvasO != 90 && canvasO != undefined) {
-            canvas.width = width;
-            canvas.height = height;
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            var ctx = canvas.getContext('2d');
-            ctx.translate(width / 2, height / 2);
-            ctx.rotate(canvasO * Math.PI / 180);
-            ctx.drawImage(image, width / 2 * (-1), height / 2 * (-1), canvas.width, canvas.height);
-        } else {
-            canvas.width = width;
-            canvas.height = height;
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-        }
-        imageURL = canvas.toDataURL();
-        var vehicleImage = document.getElementById('vehicleImage');
-
-        if (!(ios && canvasO == 90)) {
-            vehicleWrapper.replaceChild(canvas, vehicleImage);
-        }
-
-        ctx.canvas.toBlob(function (blob) {
-            upload(blob);
-        }, '*', 0);
-
-    }
-
-    function convertToImage(fileInput) {
-        var file = fileInput.files[0];
-        var image = new Image();
-        image.src = URL.createObjectURL(file);
-        image.id = 'vehicleImage';
-        image.crossOrigin = "Anonymous";
-
-        image.onload = function () {
-
-            $('#loader').css('display', 'block');
-            vehicleWrapper.append(image);
-            vehicleWrapper.style.height = 'auto';
-            vehicleWrapper.style.width = '100%';
-            vehicleWrapper.append(wheelWrapper);
-            uploadLabel.style.display = 'none';
-            uploadDescription.style.display = 'none';
-            controlsWrapper.style = '';
-            controlsWrapper.style.display = 'block';
-
-
-            if (cameraLabel) {
-                cameraLabel.style.display = 'none';
-                uploadLabel.style.display = 'none';
-            } else {
-                uploadLabel.style.display = 'none';
-            }
-
-            getOrientation(image);
-
-
-            mediaWrapper.style.display = 'inline-flex';
-            $('#mediaWrapper').show();
-        }
-    }
-
-    var wheelsElements = [document.getElementsByClassName('wheel')[0], document.getElementsByClassName('wheel')[1]];
-
-    function retry(buttonId) {
-        if (buttonId == 'tryAgain') {
-            controlsWrapper.style = '';
-            controlsWrapper.style.display = 'block';
-            confirmWrapper.style.display = 'none';
-        } else {
-            confirmWrapper.style.display = 'none';
-        }
-        vehicleWrapper.innerHTML = '';
-        vehicleWrapper.style = '';
-        wheelWrapper.innerHTML = '';
-        mediaWrapper.style = '';
-        mediaWrapper.style.display = 'none';
-        controlsWrapper.style.height = '100%';
-        uploadDescription.style.display = 'block';
-        errorWrapper.style.display = 'none';
-        $('#wheelWrapper').removeAttr('style');
-        $('#mediaWrapper').removeAttr('style');
-        $('#mediaWrapper').hide();
-
-        if (promptCaptureSupport != false) {
-            cameraLabel.style.display = 'inline-block';
-            uploadLabel.style.display = 'inline-block';
-            uploadInput.value = null;
-            cameraInput.value = null;
-        } else {
-            uploadLabel.style.display = 'inline-block';
-            uploadInput.value = null;
-            cameraInput.value = null;
-        }
-    }
-
-    function errorHandling(message) {
-        errorWrapper.style.display = 'flex';
-        errorMessage.innerHTML = message;
-        controlsWrapper.style.display = 'none';
-        mediaWrapper.style.display = 'none';
-    }
-
-    function confirm() {
-        $('#loader').css('display', 'block');
-        sessionUploadImage();
-    }
-
-    function showVehicleViewport(r) {
+    // Display vehicle along with wheel bounds
+    function displayVehicle(r) {
+        var wheelsElements = [document.getElementsByClassName('wheel')[0], document.getElementsByClassName('wheel')[1]];
         if (r.RelativeBounds.length != 0) {
-            $('#wheelWrapper').append(wheelsElements[0] = createWheelElement(r.RelativeBounds[0].Bounds));
-            $('#wheelWrapper').append(wheelsElements[1] = createWheelElement(r.RelativeBounds[1].Bounds));
-            confirmWrapper.style.display = 'inline-flex';
+            vehicleImage.src = ImageUrl;
+            wheelWrapper.append(wheelsElements[0] = createWheelElement(r.RelativeBounds[0].Bounds));
+            wheelWrapper.append(wheelsElements[1] = createWheelElement(r.RelativeBounds[1].Bounds));
+            controlsWrapper.style.display = 'block';
             controlsWrapper.style.height = 'auto';
+            mediaWrapper.style.display = 'block';
+            promptWrapper.style = '';
         } else {
             errorHandling("Could not detect wheels. Try another image.");
             appWrap.classList.add('getStarted');
@@ -284,6 +252,7 @@ if (sessionId != null) {
         }
     }
 
+    // Create Wheel elements from wheel bounds
     function createWheelElement(bounds) {
         var wheel = document.createElement('div');
         wheel.className = 'wheel marker';
@@ -293,6 +262,37 @@ if (sessionId != null) {
         wheel.style.height = (bounds.Height * 100) + '%';
 
         return wheel;
+    }
+
+    // Users clicks retry button, starts process over
+    function retrySelection(buttonId) {
+        if (buttonId == 'tryAgain') {
+            controlsWrapper.style = '';
+            controlsWrapper.style.display = 'block';
+        }
+        
+        wheelWrapper.innerHTML = '';
+        vehicleImage.src = '';
+        mediaWrapper.style.display = 'none';
+        controlsWrapper.style = '';
+        uploadDescription.style.display = 'block';
+        errorWrapper.style.display = 'none';
+
+        promptUser();
+    }
+
+    // User clicks confirm button, sends session new image and wheel bounds
+    function comfirmSelection() {
+        loader.style.display = 'block';
+        sessionUploadImage();
+    }
+
+    // Shows modal with message
+    function errorHandling(message) {
+        errorWrapper.style.display = 'flex';
+        errorMessage.innerHTML = message;
+        controlsWrapper.style.display = 'none';
+        mediaWrapper.style.display = 'none';
     }
 
     if (uploadInput) {
@@ -316,16 +316,16 @@ if (sessionId != null) {
     }
 
     confirmButton.addEventListener('click', function () {
-        confirm();
+        comfirmSelection();
     });
 
     retryButton.addEventListener('click', function () {
-        retry();
+        retrySelection();
         scanStarted();
     });
 
     tryAgain.addEventListener('click', function () {
-        retry('tryAgain');
+        retrySelection('tryAgain');
         scanStarted();
     })
 }
