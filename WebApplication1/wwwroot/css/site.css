@@ -71,6 +71,7 @@ body, html {
     top: 0;
     left: 0;
     opacity: 1;
+    text-align: center;
 }
 
 #loader-gif {
@@ -79,8 +80,7 @@ body, html {
     background: white;
     opacity: 1;
     transition: opacity 300ms linear 0s;
-    position: absolute;
-    left: 45%;
+    position: relative;
     top: 45%;
     z-index: 50;
 }
@@ -88,9 +88,8 @@ body, html {
 #mediaWrapper {
     max-width: 700px;
     height: auto;
-    margin: 120px auto 0;
+    margin: 120px auto 15px;
     position: relative;
-    margin-bottom: 15px;
     padding: 0.7em;
     width: 95%;
     border-radius: 4px;
@@ -99,9 +98,9 @@ body, html {
     border: 1px solid #eee;
 }
 
-    #mediaWrapper.portrait {
-        max-width: 320px;
-    }
+#mediaWrapper.portrait {
+    max-width: 400px;
+}
 
 #promptWrapper {
     width: 100%;
@@ -122,6 +121,7 @@ body, html {
     position: absolute;
     left: 0;
     margin-top: 15px;
+    padding: 0 15px;
 }
 
 #completeWrapper {
@@ -140,10 +140,10 @@ body, html {
     margin: 14em 0 2em;
 }
 
-    #completeCheck i {
-        color: #008606;
-        font-size: 7em;
-    }
+#completeCheck i {
+    color: #008606;
+    font-size: 7em;
+}
 
 #completeMessage {
     display: inline-block;
@@ -168,9 +168,9 @@ body, html {
     margin: 14em 0 2em;
 }
 
-    #errorEx i {
-        font-size: 7em;
-    }
+#errorEx i {
+    font-size: 7em;
+}
 
 #errorMessage {
     display: inline-block;
@@ -266,9 +266,9 @@ video {
     vertical-align: middle;
 }
 
-    #uploadLabel:hover, #cameraLabel:hover {
-        background-color: #8f0d12;
-    }
+#uploadLabel:hover, #cameraLabel:hover {
+    background-color: #8f0d12;
+}
 
 #uploadInput, #cameraInput {
     width: 0px;
@@ -289,10 +289,11 @@ video {
     margin: 30px auto 0px;
 }
 
-#controlsWrapper span {
-    padding: 0px 20px;
+#controlsWrapper div {
+    width: 100%;
     font-size: 1.65em;
     text-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
 .controls {
@@ -304,7 +305,7 @@ video {
     text-align: center;
     width: auto;
     height: auto;
-    margin: 0px 37px;
+    margin: 0px 35px;
     cursor: pointer;
     border-radius: 50%;
     background-color: #323232;
@@ -320,7 +321,7 @@ video {
 #retryButton {
     display: inline-flex;
     height: auto;
-    margin: 0px 37px;
+    margin: 0px 35px;
     cursor: pointer;
     border: none;
     border-radius: 50%;
@@ -382,71 +383,71 @@ video {
         flex-direction: row;
     }
 
-        #app.confirmPage #mediaWrapper {
-            display: inline-flex !important;
-            width: 45%;
-            margin: 3% auto 1%;
-            vertical-align: top;
-            position: relative;
-            max-width: 38%;
-        }
+    #app.confirmPage #mediaWrapper {
+        display: inline-flex !important;
+        width: 45%;
+        margin: 3% auto 1%;
+        vertical-align: top;
+        position: relative;
+    }
 
-            #app.confirmPage #mediaWrapper.portrait {
-                width: 27% !important;
-            }
+    #app.confirmPage #mediaWrapper.portrait {
+        width: 27% !important;
+    }
 
-        #app.confirmPage #controlsWrapper {
-            width: 50%;
-            height: auto !important;
-            justify-content: center;
-            margin: 4% auto 0px;
-            position: relative;
-            display: inline-flex !important;
-        }
+    #app.confirmPage #controlsWrapper {
+        width: 50%;
+        height: auto !important;
+        justify-content: center;
+        margin: 4% auto 0px;
+        position: relative;
+        display: inline-flex !important;
+    }
 
-        #app.confirmPage #confirm span {
-            font-size: 1em;
-        }
+    #app.confirmPage #confirm span {
+        font-size: 1em;
+    }
 
-        #app.confirmPage #confirm {
-            margin: auto;
-        }
+    #app.confirmPage #confirm {
+        margin: auto;
+    }
 
-        #app.confirmPage #confirmButton, #app.confirmPage #retryButton {
-            font-size: 0.9em;
-        }
+    #app.confirmPage #confirmButton, #app.confirmPage #retryButton {
+        font-size: 0.7em;
+        margin: 0px 25px;
+    }
 
-        #app.confirmPage #uploadDescription {
-            margin: 35px auto 30px;
-        }
+    #app.confirmPage #uploadDescription {
+        margin: 35px auto 30px;
+    }
 
-        #app.confirmPage #uploadLabel, #app.confirmPage #cameraLabel {
-            margin-bottom: 0;
-        }
+    #app.confirmPage #uploadLabel, #app.confirmPage #cameraLabel {
+        margin-bottom: 0;
+    }
 
-        #app #rs-logo-header {
-            position: relative;
-        }
+    #app #rs-logo-header {
+        position: relative;
+    }
 
-        #app.getStarted #uploadDescription {
-            margin: 4% auto 50px;
-            display: block;
-            width: 100%;
-        }
+    #app.getStarted #uploadDescription {
+        margin: 4% auto 50px;
+        display: block;
+        width: 100%;
+    }
 
-        #app.getStarted #controlsWrapper {
-            width: 100%;
-            height: auto !important;
-            justify-content: center;
-            margin: 0% auto 0px;
-            position: relative;
-        }
+    #app.getStarted #controlsWrapper {
+        width: 100%;
+        height: auto !important;
+        justify-content: center;
+        margin: 0% auto 0px;
+        position: relative;
+    }
 
-        #app.getStarted #uploadLabel, #app.getStarted #cameraLabel {
-            width: 30%;
-            margin: 0 3%;
-            max-width: 450px;
-        }
+    #app.getStarted #uploadLabel, #app.getStarted #cameraLabel {
+        width: 30%;
+        margin: 0 3%;
+        max-width: 450px;
+    }
 
     #completeCheck, #errorEx {
         margin: 0% 0 0%;

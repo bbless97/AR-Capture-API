@@ -1,6 +1,5 @@
 ﻿var sessionId = window.location.search.split('?sessionID=')[1];
 if (sessionId != null) {
-    checkSessionStatus()
     var testInput = document.createElement('input');
     var promptCaptureSupport = testInput.capture != undefined;
     var appWrap = document.getElementById('app');
@@ -24,9 +23,11 @@ if (sessionId != null) {
     var uploadDescription = document.getElementById('uploadDescription');
     var ImageUrl;
     var wheelBounds;
+    checkSessionStatus();
 
+    // Checking session state
     function checkSessionStatus() {
-        var url = 'http://192.168.1.115:3000/Session/Get?id=' + sessionId;
+        var url = 'http://192.168.1.185:3000/Session/Get?id=' + sessionId;
         var requestType = 'GET';
 
         function handleResponse(response) {
@@ -37,18 +38,19 @@ if (sessionId != null) {
             } else if (response == 3) {
                 loader.style.display = 'block';
             } else if (response.state == 1 || response.state == 2) {
-                mediaWrapper.style.display = 'none';
                 promptUser();
                 scanStarted();
                 loader.style.display = 'none';
+                mediaWrapper.style.display = 'none';
             }
         }
 
         sendRequest(url, handleResponse, requestType);
     }
 
+    // Sets session status to "Waiting for upload"
     function scanStarted() {
-        var url = 'http://192.168.1.115:3000/Session/ScanStarted?id=' + sessionId;
+        var url = 'http://192.168.1.185:3000/Session/ScanStarted?id=' + sessionId;
         var requestType = 'GET';
 
         function handleResponse(response) {
@@ -58,8 +60,9 @@ if (sessionId != null) {
         sendRequest(url, handleResponse, requestType);
     }
 
+    // Uploads user's image to the session
     function sessionUploadImage() {
-        var url = 'http://192.168.1.115:3000/Session/Upload';
+        var url = 'http://192.168.1.185:3000/Session/Upload';
         var requestType = 'POST';
         var formData = new FormData();
         formData.append('id', sessionId);
@@ -67,7 +70,6 @@ if (sessionId != null) {
         formData.append('wheelData', wheelBounds);
 
         function handleResponse(response) {
-            console.log(response)
             if (response == true) {
                 loader.style.display = 'none';
                 completeWrapper.style.display = 'flex';
@@ -75,19 +77,19 @@ if (sessionId != null) {
                 mediaWrapper.style.display = 'none';
                 appWrap.classList.add('getStarted');
                 appWrap.classList.remove('confirmPage');
-            } else if (response == 3) {
-                loader.style.display = 'block';
-            } else {
-                console.log(response)
+            } else if (response == false) {
                 errorHandling("There was a problem uploading your image. Please try again with a different image.");
+            } else {
+                loader.style.display = 'block';
             }
         }
 
         sendRequest(url, handleResponse, requestType, formData);
     }
 
+    // Sets session to state to "Ended"
     function sessionEnd() {
-        var url = 'http://192.168.1.115:3000/Session/End?id=' + sessionId;
+        var url = 'http://192.168.1.185:3000/Session/End?id=' + sessionId;
         var requestType = 'GET';
 
         function handleResponse() {
@@ -299,39 +301,6 @@ if (sessionId != null) {
         return wheel;
     }
 
-    // Users clicks retry button, starts process over
-    function retrySelection(buttonId) {
-        if (buttonId == 'tryAgain') {
-            controlsWrapper.style = '';
-            controlsWrapper.style.display = 'block';
-        }
-        
-        wheelWrapper.innerHTML = '';
-        vehicleImage.src = '';
-        mediaWrapper.style.display = 'none';
-        mediaWrapper.classList = '';
-        controlsWrapper.style = '';
-        uploadDescription.style.display = 'block';
-        errorWrapper.style.display = 'none';
-        promptWrapper.style = '';
-
-        promptUser();
-    }
-
-    // User clicks confirm button, sends session new image and wheel bounds
-    function comfirmSelection() {
-        loader.style.display = 'block';
-        sessionUploadImage();
-    }
-
-    // Shows modal with message
-    function errorHandling(message) {
-        errorWrapper.style.display = 'flex';
-        errorMessage.innerHTML = message;
-        controlsWrapper.style.display = 'none';
-        mediaWrapper.style.display = 'none';
-    }
-
     // Send requests to api
     function sendRequest(url, callback, requestType, formData) {
 
@@ -358,6 +327,41 @@ if (sessionId != null) {
         }
     }
 
+    // Users clicks retry or tryAgain button, starts process over
+    function retrySelection(buttonId) {
+        if (buttonId == 'tryAgain') {
+            controlsWrapper.style = '';
+            controlsWrapper.style.display = 'block';
+        }
+        wheelWrapper.innerHTML = '';
+        vehicleImage.src = '';
+        mediaWrapper.style.display = 'none';
+        mediaWrapper.classList = '';
+        controlsWrapper.style = '';
+        uploadDescription.style.display = 'block';
+        errorWrapper.style.display = 'none';
+        promptWrapper.style = '';
+        appWrap.classList.add('getStarted');
+        appWrap.classList.remove('confirmPage');
+
+        promptUser();
+    }
+
+    // User clicks confirm button, sends session new image and wheel bounds
+    function comfirmSelection() {
+        loader.style.display = 'block';
+        sessionUploadImage();
+    }
+
+    // Shows modal with message
+    function errorHandling(message) {
+        errorWrapper.style.display = 'flex';
+        errorMessage.innerHTML = message;
+        controlsWrapper.style.display = 'none';
+        mediaWrapper.style.display = 'none';
+    }
+
+    // Upload file input event listener
     if (uploadInput) {
         uploadInput.addEventListener('change', function () {
             if (uploadInput.files.length > 0) {
@@ -368,6 +372,7 @@ if (sessionId != null) {
         });
     }
 
+    // Camera file input event listener
     if (cameraInput) {
         cameraInput.addEventListener('change', function () {
             if (cameraInput.files.length > 0) {
@@ -378,15 +383,18 @@ if (sessionId != null) {
         });
     }
 
+    // Confirm button click listener
     confirmButton.addEventListener('click', function () {
         comfirmSelection();
     });
 
+    // Confirm button click listener
     retryButton.addEventListener('click', function () {
         retrySelection();
         scanStarted();
     });
 
+    // Try again button click listener
     tryAgain.addEventListener('click', function () {
         retrySelection('tryAgain');
         scanStarted();
